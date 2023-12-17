@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+  <head>
+    <title><%=forumName%> - Topics</title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+  </head>
+  <body>
+    <h1><%=forumName%></h1>
+    <h2>Topics</h2>
+    <table>
+      <tr><th>Topic</th><th>Description</th></tr>
+      <% topics.forEach(function(topic) { %>
+        <tr>
+          <td><a href= "topic/<%=topic.topic_id%>"" ><%= topic.topic_title %></td>
+          <td><%= topic.topic_description %></td>
+        </tr>
+      <% }) %>
+      
+      <h3>Users</h2>
+        <% topics.forEach(function(topic) { %>
+          <%= topic.username %><br>
+        <% }) %>
+    </table>    
+  </body>
+</html>

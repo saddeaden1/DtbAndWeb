@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <title><%=forumName%> - Users</title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+  </head>
+  <body>
+    <h1><%=forumName%></h1>
+    <h2>Users</h2>
+    <table>
+    <tr><th>Username</th><th>First Name</th><th>Surname</th><th>Country</th></tr>
+    <% users.forEach(function(user) { %>
+      <tr>
+        <td><a href= "user/<%=user.username%>"" ><%= user.username %></a></td>
+        <td><%= user.firstname %></td>
+        <td><%= user.surname %></td>
+        <td><%= user.country %></td>
+    </tr>
+    <% }) %>      
+    </table>
+  </body>
+</html>
