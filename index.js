@@ -1,32 +1,69 @@
-// My Forum
-// A web application to provide discussion forums
-
-// Import the modules we need
-var express = require ('express')
-var ejs = require('ejs')
-var bodyParser= require ('body-parser')
+var express = require('express');
+var ejs = require('ejs');
 const mysql = require('mysql');
+const fs = require('fs');
+const path = require('path');
 
-// Create the express application object
-const app = express()
-const port = 8000
-app.use(bodyParser.urlencoded({ extended: true }))
+const app = express();
+const port = process.env.PORT || 8000;
 
-// Define the database connection
-const db = mysql.createConnection ({
-    host: 'localhost',
-    user: 'forumapp',
-    password: 'qwerty',
-    database: 'myforum'
-});
-// Connect to the database
-db.connect((err) => {
-    if (err) {
-        throw err;
+function runSetupScript() {
+
+    sqlquery = fs.readFileSync(path.join(__dirname, 'create_db.sql'), { encoding: 'utf-8' });
+
+    const connection = mysql.createConnection({
+        host: 'localhost',
+        user: 'deployment',
+        password: 'sadde',
+        multipleStatements: true
+    });
+
+    connection.connect(function (err) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        connection.query(sqlquery, function (error, results, fields) {
+            if (error) {
+                console.error('Error executing SQL script:', error);
+            } else {
+                console.log('SQL script executed successfully.');
+            }
+            connection.end();
+        });
+    });
+}
+
+function setupDatabase() {
+
+    try {
+        runSetupScript();
+        console.log('Database setup completed');
+    } catch (err) {
+        console.log(err);
+        return;
     }
-    console.log('Connected to database');
-});
-global.db = db;
+
+    const db = mysql.createConnection({
+        host: 'localhost',
+        user: 'forumapp',
+        password: 'qwerty',
+        database: 'myforum'
+    });
+
+    db.connect(function (err) {
+        if (err) {
+            console.error('Failed to connect to database:', err);
+            return;
+        }
+
+        console.log('Connected to database');
+        global.db = db;
+    });
+}
+
+setupDatabase();
 
 // Set the directory where static files (css, js, etc) will be
 app.use(express.static(__dirname + "/public"));

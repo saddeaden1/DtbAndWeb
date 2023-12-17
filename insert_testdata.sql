@@ -1,8 +1,3 @@
-/*
- * Script for setting up the forum database test data
- *
- */
-
 # Select the database
 USE myforum;
 
