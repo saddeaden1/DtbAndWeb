@@ -1,5 +1,13 @@
 // Route handler for forum web app
 
+const redirectLogin = (req, res, next) => {
+  if (!req.session.userId) {
+      res.redirect('/login');
+  } else {
+      next();
+  }
+};
+
 module.exports = function (app, forumData) {
   // Handle our routes
 
@@ -9,8 +17,27 @@ module.exports = function (app, forumData) {
   });
 
   // About page
-  app.get("/about", function (req, res) {
+  app.get("/about", redirectLogin, function (req, res) {
     res.render("about.ejs", forumData);
+  });
+
+  app.get('/login', function (req, res) {
+    res.render('login.ejs', forumData);
+  });
+
+  app.post('/login', function (req, res) {
+      //all the login validation stuff
+      req.session.userId = req.body.username;
+      res.redirect('/');
+  });
+
+  app.get('/logout', function (req, res) {
+    req.session.destroy(err => {
+        if (err) {
+            return res.redirect('/');
+        }
+        res.redirect('/login');
+    });
   });
 
   // View Posts page

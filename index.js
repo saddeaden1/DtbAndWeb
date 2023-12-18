@@ -3,9 +3,21 @@ var ejs = require('ejs');
 const mysql = require('mysql');
 const fs = require('fs');
 const path = require('path');
+const bodyParser = require('body-parser');
 
 const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
 const port = process.env.PORT || 8000;
+
+var session = require('express-session');
+app.use(session({
+    secret: 'saddesecret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        expires: 600000
+    }
+}));
 
 function runSetupScript() {
 
