@@ -28,7 +28,7 @@ module.exports = function (app, forumData) {
   app.post('/login', function (req, res) {
       //all the login validation stuff
       req.session.userId = req.body.username;
-      res.redirect('/');
+      res.redirect('./');
   });
 
   app.get('/logout', function (req, res) {
