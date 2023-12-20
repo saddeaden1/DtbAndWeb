@@ -1,5 +1,4 @@
 // Route handler for forum web app
-
 const redirectLogin = (req, res, next) => {
   if (!req.session.userId) {
       res.redirect('./login');
@@ -70,9 +69,8 @@ module.exports = function (app, forumData) {
     });
   });
 
-
   // View Book Reviews
-  app.get("/viewreviews", function (req, res) {
+  app.get("/viewreviews", redirectLogin, function (req, res) {
     let sqlquery = `SELECT ReviewID, ISBN, ReviewText, PostDate, PostTitle, Rating, UserName
                     FROM reviews
                     JOIN users ON reviews.UserID = users.UserID
@@ -83,12 +81,13 @@ module.exports = function (app, forumData) {
             res.redirect("./");
         }
 
-        let data = Object.assign({}, forumData, { reviews: result });
+        let data = Object.assign({}, forumData, { reviews: result }, );
         res.render("viewreviews.ejs", data);
     });
   });
 
-  app.get("/review/:reviewId", function (req, res) {
+  // View Book Review
+  app.get("/review/:reviewId", redirectLogin, function (req, res) {
     let reviewQuery = `SELECT * FROM reviews WHERE ReviewID = ?`;
     let repliesQuery = `SELECT * FROM replys WHERE ReviewID = ?`;
 
@@ -113,7 +112,114 @@ module.exports = function (app, forumData) {
     });
   });
 
-  // View Posts page
+  // Add a New Reveiw page
+  app.get("/addreview", redirectLogin, function (req, res) {
+    // Set the initial values for the form
+    let initialvalues = { isbn: "", reviewText: "", rating: "" };
+
+    // Pass the data to the EJS page and view it
+    return renderAddNewReview(res, initialvalues, "");
+  });
+
+  // Helper function to render the Add New Review page
+  function renderAddNewReview(res, initialvalues, errormessage) {
+      let data = Object.assign({}, { forumName: forumData.forumName }, initialvalues, {
+          errormessage: errormessage,
+      });
+      console.log(data);
+      res.render("addreview.ejs", data);
+      return;
+  }
+
+  app.post("/reviewadded", function (req, res) {
+    let { isbn, reviewText, rating } = req.body;
+    let userId = req.session.user ? req.session.user.id : 1; 
+
+    let sqlquery = `INSERT INTO reviews (UserID, ISBN, ReviewText, Rating) VALUES (?, ?, ?, ?)`;
+    db.query(sqlquery, [userId, isbn, reviewText, rating], (err, result) => {
+        if (err) {
+            return renderAddNewReview(res, req.body, err.message);
+        }
+        res.send("Review added successfully");
+    });
+  });
+};
+
+/* /////////////////////////////////////////////////////////////////////////////
+  // Search for Posts page
+  app.get("/post/:postName", function (req, res) {
+    let sqlquery = `Select post_id, post_date, post_title, post_content, reply, repliesUserName, postsUsername
+                    FROM vw_replies
+                    WHERE  post_title = ? `;
+
+    db.query(sqlquery, [req.params.postName], (err, result) => {
+      if (err) {
+        res.redirect("./");
+      }
+      let initialvalues = { username: "", content: "", errormessage: "" };
+      let data = Object.assign({}, forumData, { post: result }, initialvalues);
+      res.render("post.ejs", data);
+    });
+  });
+
+  // Adds a reply and returns the response
+  app.post("/reply", function (req, res) {
+    let params = [req.body.content, req.body.post_id, req.body.username];
+    console.log(params);
+    let sqlquery = `CALL sp_insert_reply(?,?,?)`;
+    //Calling reply stored proc and returning the sucess or error page to the user
+    db.query(sqlquery, params, (err, result) => {
+      if (err) {
+        res.send(err.message);
+      }else{
+        res.send("You reply has been added to forum");
+      }
+    });
+  });
+
+  // Search for Posts page
+  app.get("/search", function (req, res) {
+    res.render("search.ejs", forumData);
+  });
+
+  // Search for Posts form handler
+  app.get("/search-result", function (req, res) {
+    //searching in the database
+    let term = "%" + req.query.keyword + "%";
+
+    let sqlquery = `SELECT   post_id, post_date, topic_title, post_title, post_content, username 
+                    FROM     vw_posts2
+                    WHERE    post_title LIKE ? OR post_content LIKE ?
+                    ORDER BY post_date DESC`;
+
+    db.query(sqlquery, [term, term], (err, result) => {
+      if (err) {
+        res.redirect("./");
+      }
+
+      let data = Object.assign({}, forumData, { posts: result });
+      res.render("viewposts.ejs", data);
+    });
+  });
+
+    // Add a New Post page form handler
+    app.post("/postadded", function (req, res) {
+      let params = [
+        req.body.title,
+        req.body.content,
+        req.body.topic,
+        req.body.username,
+      ];
+      let sqlquery = `CALL sp_insert_post(?,?,?,?)`;
+      db.query(sqlquery, params, (err, result) => {
+        if (err) {
+          return renderAddNewPost(res, req.body, err.message);
+        }
+        res.send("You post has been added to forum");
+      });
+    }); 
+    
+   // View Posts page
   app.get("/viewposts", function (req, res) {
     // Query to select all posts from the database
     let sqlquery2 =`SELECT   post_id, post_date, topic_title, post_title, post_content, username 
@@ -249,97 +355,4 @@ module.exports = function (app, forumData) {
       console.log(data);
       res.render("topic.ejs", data);
     });
-  });
-
-  // Add a New Post page
-  app.get("/addpost", function (req, res) {
-    // Set the initial values for the form
-    let initialvalues = { username: "", topic: "", title: "", content: "" };
-
-    // Pass the data to the EJS page and view it
-    return renderAddNewPost(res, initialvalues, "");
-  });
-
-  // Helper function to
-  function renderAddNewPost(res, initialvalues, errormessage) {
-    let data = Object.assign({}, forumData, initialvalues, {
-      errormessage: errormessage,
-    });
-    console.log(data);
-    res.render("addpost.ejs", data);
-    return;
-  }
-
-  // Add a New Post page form handler
-  app.post("/postadded", function (req, res) {
-    let params = [
-      req.body.title,
-      req.body.content,
-      req.body.topic,
-      req.body.username,
-    ];
-    let sqlquery = `CALL sp_insert_post(?,?,?,?)`;
-    db.query(sqlquery, params, (err, result) => {
-      if (err) {
-        return renderAddNewPost(res, req.body, err.message);
-      }
-      res.send("You post has been added to forum");
-    });
-  });
-
-  // Search for Posts page
-  app.get("/post/:postName", function (req, res) {
-    let sqlquery = `Select post_id, post_date, post_title, post_content, reply, repliesUserName, postsUsername
-                    FROM vw_replies
-                    WHERE  post_title = ? `;
-
-    db.query(sqlquery, [req.params.postName], (err, result) => {
-      if (err) {
-        res.redirect("./");
-      }
-      let initialvalues = { username: "", content: "", errormessage: "" };
-      let data = Object.assign({}, forumData, { post: result }, initialvalues);
-      res.render("post.ejs", data);
-    });
-  });
-
-  // Adds a reply and returns the response
-  app.post("/reply", function (req, res) {
-    let params = [req.body.content, req.body.post_id, req.body.username];
-    console.log(params);
-    let sqlquery = `CALL sp_insert_reply(?,?,?)`;
-    //Calling reply stored proc and returning the sucess or error page to the user
-    db.query(sqlquery, params, (err, result) => {
-      if (err) {
-        res.send(err.message);
-      }else{
-        res.send("You reply has been added to forum");
-      }
-    });
-  });
-
-  // Search for Posts page
-  app.get("/search", function (req, res) {
-    res.render("search.ejs", forumData);
-  });
-
-  // Search for Posts form handler
-  app.get("/search-result", function (req, res) {
-    //searching in the database
-    let term = "%" + req.query.keyword + "%";
-
-    let sqlquery = `SELECT   post_id, post_date, topic_title, post_title, post_content, username 
-                    FROM     vw_posts2
-                    WHERE    post_title LIKE ? OR post_content LIKE ?
-                    ORDER BY post_date DESC`;
-
-    db.query(sqlquery, [term, term], (err, result) => {
-      if (err) {
-        res.redirect("./");
-      }
-
-      let data = Object.assign({}, forumData, { posts: result });
-      res.render("viewposts.ejs", data);
-    });
-  });
-};
+  });*/

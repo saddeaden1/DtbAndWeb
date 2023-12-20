@@ -5,6 +5,7 @@
     <link rel="stylesheet" type="text/css" href="/main.css" />
   </head>
   <body>
+    <%- include('./partials/header.ejs'); -%>
     <h1><%= review.PostTitle %></h1>
     <p><%= review.ReviewText %></p>
     <p>Rating: <%= review.Rating %>/5</p>
@@ -12,9 +13,25 @@
     <p>Date: <%= review.PostDate.toDateString() %></p>
 
     <h2>Replies</h2>
-    <% replies.forEach(function(reply) { %>
-      <p><%= reply.reply %></p>
-      <p>By: <%= reply.UserName %></p>
-    <% }) %>
+    <table>
+        <tr>
+          <th>Reply</th>
+          <th>User</th>
+        </tr>
+        <% replies.forEach(function(reply) { %>
+        <tr>
+          <td><%= reply.reply %></td>
+          <td>By: <%= reply.UserName %></td>
+        </tr>
+        <% }) %>
+    </table>
+
+    <h2>Make a reply</h2>
+    <form method="POST" action="/reply">
+        <p>Content: <textarea id="content" type="text" name="content" value="" ></textarea></p>
+        <input type="hidden" id="post_tittle" name="post_id" value="<%=review.PostTitle%>" ><br><br>
+        <input type="hidden" id="username" name="username" value="username" ><br><br>
+        <input type="submit" value="Add Reply" />
+      </form>
   </body>
 </html>

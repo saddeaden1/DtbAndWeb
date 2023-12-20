@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+  <head>
+    <title><%= forumName %> - Add Review</title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <%- include('./partials/header.ejs'); -%>
+    <h1><%= forumName %></h1>
+    <h2>Add a New Review</h2>
+
+    <form method="POST" action="/reviewadded">
+        <p>Book Search: <input type="text" id="bookSearch" />
+            <div id="bookList" class="dropdown-content"></div>
+        </p>
+        <p>Name: <input type="text" name="name" id="bookName" required /></p>
+        <p>ISBN: <input type="text" name="isbn" id="isbn" required /></p>
+        <p>Review Text: <textarea name="reviewText" required></textarea></p>
+        <p>Rating: <input type="number" name="rating" min="1" max="5" required /></p>
+        <input type="submit" value="Submit Review" />
+    </form>
+
+    <% if (errormessage) { %>
+        <p class="error"><%= errormessage %></p>
+    <% } %>
+
+    <script>
+      $(document).ready(function() {
+        $('#bookSearch').on('input', function() {
+          var query = $(this).val();
+          $('#bookList').empty();
+
+          if (query.length > 2) {
+            $.getJSON("https://www.googleapis.com/books/v1/volumes?q=" + query, function(data) {
+              data.items.forEach(function(item) {
+                $('#bookList').append('<div class="book-item" data-isbn="' + (item.volumeInfo.industryIdentifiers ? item.volumeInfo.industryIdentifiers[0].identifier : '') + '" data-name="' + item.volumeInfo.title + '">' + item.volumeInfo.title + '</div>');
+              });
+
+              $('.book-item').click(function() {
+                var isbn = $(this).data('isbn');
+                var name = $(this).data('name');
+                $('#isbn').val(isbn);
+                $('#bookName').val(name);
+                $('#bookList').empty();
+              });
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

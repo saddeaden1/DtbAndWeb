@@ -13,12 +13,17 @@ var session = require('express-session');
 app.use(session({
     secret: 'saddesecret',
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: {
         secure: false,
         expires: 600000
     }
 }));
+
+app.use((req, res, next) => {
+    res.locals.user = req.session.user;
+    next();
+});
 
 function runSetupScript() {
 
