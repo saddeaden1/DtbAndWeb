@@ -13,7 +13,11 @@ module.exports = function (app, forumData) {
 
   // Home page
   app.get("/", function (req, res) {
-    res.render("index.ejs", forumData);
+    let data = {
+        forumName: forumData.forumName, 
+        user: req.session.user
+    };
+    res.render("index.ejs", data);
   });
 
   // About page
@@ -26,10 +30,36 @@ module.exports = function (app, forumData) {
   });
 
   app.post('/login', function (req, res) {
-      //all the login validation stuff
-      req.session.userId = req.body.username;
-      res.redirect('./');
+    const { username, password } = req.body;
+
+    getUserByUsername(username, function(err, user) {
+        if (err) {
+            return res.status(500).send('An error occurred');
+        }
+
+        if (!user) {
+            return res.status(401).send('User not found');
+        }
+
+        const isValidPassword = validatePassword(password, user.hashedPassword);
+        if (!isValidPassword) {
+            return res.status(401).send('Invalid password');
+        }
+
+        req.session.user = { id: user.id, name: user.name, username: user.username };
+        console.log(req.session.user);
+
+        res.redirect('/');
+    });
   });
+
+  function getUserByUsername(username, callback) {
+      callback(null, { id: 1, name: 'John Doe', username: 'johndoe', hashedPassword: 'hashedpassword' });
+  }
+
+  function validatePassword(inputPassword, storedHashedPassword) {
+      return inputPassword === 'password';
+  }
 
   app.get('/logout', function (req, res) {
     req.session.destroy(err => {
@@ -37,6 +67,49 @@ module.exports = function (app, forumData) {
             return res.redirect('./');
         }
         res.send('you are now logged out. <a href='+'./'+'>Home</a>');
+    });
+  });
+
+
+  // View Book Reviews
+  app.get("/viewreviews", function (req, res) {
+    let sqlquery = `SELECT ReviewID, ISBN, ReviewText, PostDate, PostTitle, Rating, UserName
+                    FROM reviews
+                    JOIN users ON reviews.UserID = users.UserID
+                    ORDER BY PostDate DESC`;
+
+    db.query(sqlquery, (err, result) => {
+        if (err) {
+            res.redirect("./");
+        }
+
+        let data = Object.assign({}, forumData, { reviews: result });
+        res.render("viewreviews.ejs", data);
+    });
+  });
+
+  app.get("/review/:reviewId", function (req, res) {
+    let reviewQuery = `SELECT * FROM reviews WHERE ReviewID = ?`;
+    let repliesQuery = `SELECT * FROM replys WHERE ReviewID = ?`;
+
+    db.query(reviewQuery, [req.params.reviewId], (err, reviewResult) => {
+        if (err) {
+            return res.redirect("./");
+        }
+
+        db.query(repliesQuery, [req.params.reviewId], (err, repliesResult) => {
+            if (err) {
+                return res.redirect("./");
+            }
+
+            let data = {
+                review: reviewResult[0],
+                replies: repliesResult,
+                forumName: forumData.forumName
+            };
+
+            res.render("review.ejs", data);
+        });
     });
   });
 

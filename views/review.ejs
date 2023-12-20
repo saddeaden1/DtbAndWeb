@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= review.PostTitle %> - Review</title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+  </head>
+  <body>
+    <h1><%= review.PostTitle %></h1>
+    <p><%= review.ReviewText %></p>
+    <p>Rating: <%= review.Rating %>/5</p>
+    <p>Reviewed by: <%= review.UserName %></p>
+    <p>Date: <%= review.PostDate.toDateString() %></p>
+
+    <h2>Replies</h2>
+    <% replies.forEach(function(reply) { %>
+      <p><%= reply.reply %></p>
+      <p>By: <%= reply.UserName %></p>
+    <% }) %>
+  </body>
+</html>

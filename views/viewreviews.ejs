@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= forumName %> - Reviews</title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+  </head>
+  <body>
+    <h1><%= forumName %></h1>
+    <h2>View Reviews</h2>
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>Book</th>
+        <th>Review Title</th>
+        <th>Rating</th>
+        <th>User</th>
+      </tr>
+      <% reviews.forEach(function(review) { %>
+      <tr>
+        <td><%= review.PostDate.toDateString() %></td>
+        <td><%= review.BookName %></td>
+        <td><a href="/review/<%= review.ReviewID %>"><%= review.PostTitle %></a></td>
+        <td><%= review.Rating %>/5</td>
+        <td><%= review.UserName %></a></td>
+      </tr>
+      <% }) %>
+    </table>
+  </body>
+</html>
