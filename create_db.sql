@@ -9,106 +9,72 @@ DROP USER IF EXISTS 'forumapp'@'localhost';
 CREATE USER 'forumapp'@'localhost' IDENTIFIED WITH mysql_native_password BY 'qwerty';
 GRANT ALL PRIVILEGES ON myforum.* TO 'forumapp'@'localhost';
 
-# Remove the tables if they already exist
-DROP TABLE IF EXISTS posts;
-DROP TABLE IF EXISTS membership;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS topics;
-
 # Create the user table to store user details
 CREATE TABLE users (
-  user_id INT NOT NULL UNIQUE AUTO_INCREMENT,
-  firstname VARCHAR(20) NOT NULL,
-  surname VARCHAR(20) NOT NULL,
-  username VARCHAR(15) NOT NULL UNIQUE,
-  country VARCHAR(20),
-  PRIMARY KEY(user_id)
+    UserID INT AUTO_INCREMENT PRIMARY KEY,
+    UserName VARCHAR(50) UNIQUE NOT NULL,
+    FirstName VARCHAR(20) NOT NULL,
+    Surname VARCHAR(20) NOT NULL,
+    HashedPassword VARCHAR(255) NOT NULL,
+    Country VARCHAR(50)
 );
 
-# Create the topics table to store the list of available topics
-CREATE TABLE topics (
-   topic_id INT NOT NULL UNIQUE AUTO_INCREMENT,
-   topic_title VARCHAR(20),
-   topic_description VARCHAR(100),
-   PRIMARY KEY(topic_id)
+# Create the Books table to store the list of books reveiwed
+CREATE TABLE books (
+    ISBN VARCHAR(50) PRIMARY KEY,
+    BookName VARCHAR(255) NOT NULL,
+    Author VARCHAR(255) NOT NULL,
+    Category VARCHAR(100)
 );
 
-# Create the membership table to say which users are members of which topics
-CREATE TABLE membership (
-	user_id INT,
-    topic_id INT,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (topic_id) REFERENCES topics(topic_id)
+# Create the reviews table to store the user reviews
+CREATE TABLE reviews (
+    ReviewID INT NOT NULL UNIQUE AUTO_INCREMENT PRIMARY KEY,
+    UserID INT,
+    ISBN VARCHAR(50),
+    ReviewText MEDIUMTEXT,
+    PostDate DATETIME,
+    PostTitle VARCHAR(30),
+    Rating INT CHECK (Rating >= 1 AND Rating <= 5),
+    FOREIGN KEY (UserID) REFERENCES users(UserID),
+    FOREIGN KEY (ISBN) REFERENCES books(ISBN)
 );
 
-# Create the posts table to store the user posts
-CREATE TABLE posts (
-	post_id INT NOT NULL UNIQUE AUTO_INCREMENT,
-    post_date DATETIME,
-    post_title VARCHAR(30),
-    post_content MEDIUMTEXT,
-    user_id INT,
-    topic_id INT,
-    PRIMARY KEY(post_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (topic_id) REFERENCES topics(topic_id)
-);
-
-# Create the replies table to store the user replies
+# Create the replies table to store the user replies to reveiws
 CREATE TABLE replys (
-	reply_id INT NOT NULL UNIQUE AUTO_INCREMENT,
+    reply_id INT NOT NULL UNIQUE AUTO_INCREMENT,
     reply MEDIUMTEXT,
-    user_id INT,
-    topic_id INT,
-    post_id INT,
+    UserID INT,
+    ReviewID INT,
     PRIMARY KEY(reply_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (post_id) REFERENCES posts(post_id)
+    FOREIGN KEY (UserID) REFERENCES users(UserID),
+    FOREIGN KEY (ReviewID) REFERENCES reviews(ReviewID)
 );
-
-
-INSERT INTO users (firstname, surname, username, country)
-VALUES  ('Shad','Travis','shaddy', 'UK'),
-		('Bernadette','Bagley','baggy', 'Italy'),
-		('Rolo','Vicario','roly', 'Italy'),
-		('Sophie','Panza','panny','UK'),
-		('Miriana','Vitali','vit', 'Italy'),
-		('Carolina','Morella','lina','Spain'),
-		('Allyn','Earl','ally', 'UK'),
-		('Giada','Filippi','pip', 'Italy'),
-		('Elly','Barros','elly', 'Spain');
-        
-# Insert a few initial topics
-INSERT INTO topics (topic_title, topic_description)
-VALUES ('food', 'All about food'),
-       ('art', 'Arts, artists and related'),
-       ('architecture', 'Buildings of interest');
        
-# Insert some user membership to topics
-INSERT INTO membership (user_id, topic_id)
-VALUES (1,1),(1,2),(1,3),
-       (2,2),
-       (3,3),
-       (4,1),
-       (5,1),
-       (6,1),(6,3),
-       (7,3);
-       
-# Insert some test posts
-INSERT INTO posts (post_date, post_title, post_content, user_id, topic_id)
-VALUES ('2021-11-01 12:53', "How to peel an avocado", "What's the best way to peel an avocado?", 1, 1);
+INSERT INTO users (UserName, FirstName, Surname, HashedPassword, Country)
+VALUES 
+('johndoe', 'John', 'Doe', 'hashedpassword1111111111111111111', 'USA'),
+('janedoe', 'Jane', 'Doe', 'hashedpassword222222222222222222', 'UK'),
+('joew', 'Joe', 'Wonderland', 'hashedpassword3333333333', 'Australia'),
+('fredb', 'Fred', 'Builder', 'hashedpassword44444444444', 'Canada');
 
-INSERT INTO posts (post_date, post_title, post_content, user_id, topic_id)
-VALUES ('2021-11-03 10:34', "Peeling bananas", "Which is the correct end?", 4, 1);
+INSERT INTO books (ISBN, BookName, Author, Category)
+VALUES 
+('978-3-16-148410-0', 'The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction'),
+('979-8600420458', 'To Kill a Mockingbird', 'Harper Lee', 'Fiction'),
+('978-1790245840', 'The Sign of The Blood', 'Jane Austen', 'Horror'),
+('979-8986770505', 'Fire Marker Man', 'George Orwell', 'Sci-Fi');
 
-INSERT INTO posts (post_date, post_title, post_content, user_id, topic_id)
-VALUES ('2021-11-07 16:26', "How to peel a grape", "Is this even possible?", 6, 1);
+INSERT INTO reviews (UserID, ISBN, ReviewText, PostDate, PostTitle, Rating)
+VALUES 
+(1, '978-3-16-148410-0', 'Great read this was', '2023-12-01 10:00:00', 'Classic', 5),
+(2, '979-8600420458', 'An inspiration', '2023-12-02 11:30:00', 'Inspiration', 4),
+(3, '978-1790245840', 'I liked this book', '2023-12-03 09:15:00', 'Great read', 4),
+(4, '979-8986770505', 'Did not like this very much, very boring', '2023-12-04 08:45:00', 'Very boring', 5);
 
-INSERT INTO posts (post_date, post_title, post_content, user_id, topic_id)
-VALUES ('2021-11-13 17:01', "My bao buns are soggy", "What am I doing wrong?", 6, 1);
-
-INSERT INTO posts (post_date, post_title, post_content, user_id, topic_id)
-VALUES ('2021-11-13 19:45', "Framers in Camberwell", "I urgently need a picture framing.  Any recommendations?", 1, 2);
-
-INSERT INTO posts (post_date, post_title, post_content, user_id, topic_id)
-VALUES ('2021-11-15 13:32', "Cezanne exhibition", "I have 2 spare tickets for this Friday.  Anyone want them?", 2, 2);
+INSERT INTO replys (reply, UserID, ReviewID)
+VALUES 
+('Gread insight i totally agree', 2, 1),
+('I disagree actually', 1, 2),
+('This is my fav', 4, 3),
+('This book was thought provocing', 3, 4);
