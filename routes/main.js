@@ -1,6 +1,7 @@
 // Route handler for forum web app
 const redirectLogin = (req, res, next) => {
-  if (!req.session.userId) {
+  if (!req.session.user) { 
+      req.session.originalUrl = req.originalUrl; 
       res.redirect('./login');
   } else {
       next();
@@ -46,11 +47,17 @@ module.exports = function (app, forumData) {
         }
 
         req.session.user = { id: user.id, name: user.name, username: user.username };
-        console.log(req.session.user);
-
-        res.redirect('/');
+        req.session.save(err => { 
+        if (err) {
+            return res.status(500).send('Error saving session');
+        }
+        const redirectTo = req.session.originalUrl || '/';
+        delete req.session.originalUrl;
+        res.redirect(redirectTo);
+      });
     });
   });
+
 
   function getUserByUsername(username, callback) {
       callback(null, { id: 1, name: 'John Doe', username: 'johndoe', hashedPassword: 'hashedpassword' });
