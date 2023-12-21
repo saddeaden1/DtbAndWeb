@@ -7,19 +7,30 @@
   </head>
   <body>
     <%- include('./partials/header.ejs'); -%>
-    <h1><%= forumName %></h1>
-    <h2>Add a New Review</h2>
-
-    <form method="POST" action="/reviewadded">
-        <p>Book Search: <input type="text" id="bookSearch" />
-            <div id="bookList" class="dropdown-content"></div>
-        </p>
-        <p>Name: <input type="text" name="name" id="bookName" required /></p>
-        <p>ISBN: <input type="text" name="isbn" id="isbn" required /></p>
-        <p>Review Text: <textarea name="reviewText" required></textarea></p>
-        <p>Rating: <input type="number" name="rating" min="1" max="5" required /></p>
-        <input type="submit" value="Submit Review" />
-    </form>
+    <div class="container">
+      <h2>Add a New Review</h2>
+      <div class="card">
+        <form method="POST" action="/reviewadded">
+          <div class="form-group">
+            <label for="bookName">Name:</label>
+            <input type="text" name="name" id="bookName" required />
+          </div>
+          <div class="form-group">
+            <label for="isbn">ISBN:</label>
+            <input type="text" name="isbn" id="isbn" required />
+          </div>
+          <div class="form-group">
+            <label for="reviewText">Review Text:</label>
+            <textarea name="reviewText" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="rating">Rating:</label>
+            <input type="number" name="rating" min="1" max="5" required />
+          </div>
+          <button type="submit" class="btn">Submit Review</button>
+        </form>
+      </div>
+  </div>
 
     <% if (errormessage) { %>
         <p class="error"><%= errormessage %></p>

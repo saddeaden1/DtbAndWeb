@@ -6,32 +6,58 @@
   </head>
   <body>
     <%- include('./partials/header.ejs'); -%>
-    <h1><%= review.PostTitle %></h1>
-    <p><%= review.ReviewText %></p>
-    <p>Rating: <%= review.Rating %>/5</p>
-    <p>Reviewed by: <%= review.UserName %></p>
-    <p>Date: <%= review.PostDate.toDateString() %></p>
+    <div class="container">
+      <h1 class="page-title"><%= review.PostTitle %></h1>
+      <div class="card">
+        <div class="review-content">
+          <p><%= review.ReviewText %></p>
+        </div>
+        <div class="review-details">
+          <p class="rating">Rating: <%= review.Rating %>/5</p>
+          <p class="meta">Reviewed by <%= review.UserName %> on <%= review.PostDate.toDateString() %></p>
+        </div>
+      </div>
 
-    <h2>Replies</h2>
-    <table>
-        <tr>
-          <th>Reply</th>
-          <th>User</th>
-        </tr>
-        <% replies.forEach(function(reply) { %>
-        <tr>
-          <td><%= reply.reply %></td>
-          <td>By: <%= reply.UserName %></td>
-        </tr>
-        <% }) %>
-    </table>
+      <section class="replies-section">
+        <h2>Replies</h2>
+        <div class="card">
+          <% if (replies.length > 0) { %>
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th>Reply</th>
+                  <th>User</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% replies.forEach(function(reply) { %>
+                <tr>
+                  <td><%= reply.reply %></td>
+                  <td>By: <%= reply.UserName %></td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } else { %>
+            <p>No replies yet.</p>
+          <% } %>
+        </div>
+      </section>
 
-    <h2>Make a reply</h2>
-    <form method="POST" action="/reply">
-        <p>Content: <textarea id="content" type="text" name="content" value="" ></textarea></p>
-        <input type="hidden" id="post_tittle" name="post_id" value="<%=review.PostTitle%>" ><br><br>
-        <input type="hidden" id="username" name="username" value="username" ><br><br>
-        <input type="submit" value="Add Reply" />
-      </form>
+      <section class="reply-form-section">
+        <h2>Make a reply</h2>
+        <div class="card">
+          <form method="POST" action="/reply">
+            <div class="form-group">
+              <label for="content">Your Reply:</label>
+              <textarea id="content" name="content" placeholder="Write your reply here..."></textarea>
+            </div>
+            <input type="hidden" id="post_title" name="post_id" value="<%= review.PostTitle %>" >
+            <input type="hidden" id="username" name="username" value="username" >
+            <button type="submit" class="btn">Post Reply</button>
+          </form>
+        </div>
+      </section>
+    </div>
   </body>
 </html>

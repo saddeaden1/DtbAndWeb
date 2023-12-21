@@ -1,29 +1,161 @@
-h1 {
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+h1, h2, h3, p, th, td {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-h2 {
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-p {
-    font-family: Arial, Helvetica, sans-serif;
+h1, h2, h3 {
+    color: #333;
 }
 
 table {
     border: 1px solid;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 th {
     text-align: left;
-    font-family: Arial, Helvetica, sans-serif;
 }
 
 td {
-    font-family: Arial, Helvetica, sans-serif;
-    padding-right:20px;
+    padding-right: 20px;
 }
 
 .errormessage {
-    color:red;
+    color: red;
+}
+
+header {
+    background: #333;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+.navbar {
+    background-color: #333;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+}
+
+.nav-links a, .login-section a, nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+    font-weight: bold;
+}
+
+.nav-links a:hover, .login-section a:hover, nav a:hover {
+    text-decoration: underline;
+}
+
+.login-section {
+    display: flex;
+    align-items: center;
+}
+
+.login-section span {
+    margin-right: 10px;
+    color: #fff;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+}
+
+.card {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.styled-table th, .styled-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:hover {
+    background-color: #eaeaea;
+}
+
+.styled-table a {
+    color: #333;
+    text-decoration: none;
+}
+
+.styled-table a:hover {
+    text-decoration: underline;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #333;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #555;
+}
+
+.page-title {
+    margin-bottom: 20px;
+}
+
+.review-details {
+    margin-top: 10px;
+    font-style: italic;
+    color: #555;
+}
+
+.rating {
+    font-weight: bold;
+    color: #333;
+}
+
+.replies-section, .reply-form-section {
+    margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+    }
 }

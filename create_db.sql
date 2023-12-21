@@ -56,7 +56,8 @@ VALUES
 ('johndoe', 'John', 'Doe', 'hashedpassword1111111111111111111', 'USA'),
 ('janedoe', 'Jane', 'Doe', 'hashedpassword222222222222222222', 'UK'),
 ('joew', 'Joe', 'Wonderland', 'hashedpassword3333333333', 'Australia'),
-('fredb', 'Fred', 'Builder', 'hashedpassword44444444444', 'Canada');
+('fredb', 'Fred', 'Builder', 'hashedpassword44444444444', 'Canada'),
+('saddeaden', 'Sadde', 'Aden', '$2b$10$MFVDXsR3u32pnwW0z5fRG.h7r169nO2U1TKnSpsepsLeKMkssjjL6', 'United Kingdom');
 
 INSERT INTO books (ISBN, BookName, Author, Category)
 VALUES 
@@ -78,3 +79,21 @@ VALUES
 ('I disagree actually', 1, 2),
 ('This is my fav', 4, 3),
 ('This book was thought provocing', 3, 4);
+
+
+CREATE PROCEDURE RegisterUser(IN p_UserName VARCHAR(50), IN p_FirstName VARCHAR(20), IN p_Surname VARCHAR(20), IN p_HashedPassword VARCHAR(255), IN p_Country VARCHAR(50))
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+        INSERT INTO users (UserName, FirstName, Surname, HashedPassword, Country) VALUES (p_UserName, p_FirstName, p_Surname, p_HashedPassword, p_Country);
+    COMMIT;
+END;
+
+CREATE PROCEDURE LoginUser(IN p_UserName VARCHAR(50))
+BEGIN
+    SELECT UserID, UserName, HashedPassword FROM users WHERE UserName = p_UserName;
+END;

@@ -6,25 +6,36 @@
   </head>
   <body>
     <%- include('./partials/header.ejs'); -%>
-    <h1><%= forumName %></h1>
-    <h2>View Reviews</h2>
-    <table>
-      <tr>
-        <th>Date</th>
-        <th>Book</th>
-        <th>Review Title</th>
-        <th>Rating</th>
-        <th>User</th>
-      </tr>
-      <% reviews.forEach(function(review) { %>
-      <tr>
-        <td><%= review.PostDate.toDateString() %></td>
-        <td><%= review.BookName %></td>
-        <td><a href="/review/<%= review.ReviewID %>"><%= review.PostTitle %></a></td>
-        <td><%= review.Rating %>/5</td>
-        <td><%= review.UserName %></a></td>
-      </tr>
-      <% }) %>
-    </table>
+    <div class="container">
+      <h2>View Reviews</h2>
+      <div class="card">
+        <% if (reviews.length > 0) { %>
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Book</th>
+                <th>Review Title</th>
+                <th>Rating</th>
+                <th>User</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% reviews.forEach(function(review) { %>
+              <tr>
+                <td><%= review.PostDate.toDateString() %></td>
+                <td><%= review.BookName %></td>
+                <td><a href="/review/<%= review.ReviewID %>"><%= review.PostTitle %></a></td>
+                <td><%= review.Rating %>/5</td>
+                <td><%= review.UserName %></td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else { %>
+          <p>No reviews available.</p>
+        <% } %>
+      </div>
+    </div>
   </body>
 </html>

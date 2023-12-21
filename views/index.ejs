@@ -6,8 +6,18 @@
   </head>
   <body>
     <%- include('./partials/header.ejs'); -%>
-    <h1>Welcome to <%= forumName %></h1>
-    <p><a href="viewreviews">View Reveiws</a></p>
-    <p><a href="addreview">Add a New Reveiws</a></p>
+    <div class="container">
+      <h1>Welcome to <%= forumName %></h1>
+      <div class="card">
+        <h2>Featured Review</h2>
+        <p>Check out the latest book reviews here!</p>
+        <a href="viewreviews">View Reviews</a>
+      </div>
+      <div class="card">
+        <h2>Add Your Review</h2>
+        <p>Share your thoughts on your latest read.</p>
+        <a href="addreview">Add a New Review</a>
+      </div>
+    </div>
   </body>
 </html>

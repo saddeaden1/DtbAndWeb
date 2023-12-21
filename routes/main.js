@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 // Route handler for forum web app
 const redirectLogin = (req, res, next) => {
   if (!req.session.user) { 
@@ -29,43 +30,62 @@ module.exports = function (app, forumData) {
     res.render('login.ejs', forumData);
   });
 
-  app.post('/login', function (req, res) {
+  app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
-    getUserByUsername(username, function(err, user) {
+    db.query('CALL LoginUser(?)', [username], async (err, result) => {
         if (err) {
             return res.status(500).send('An error occurred');
         }
 
-        if (!user) {
+        const users = result[0];
+        if (users.length === 0) {
             return res.status(401).send('User not found');
         }
 
-        const isValidPassword = validatePassword(password, user.hashedPassword);
+        const user = users[0];
+        const isValidPassword = await bcrypt.compare(password, user.HashedPassword);
         if (!isValidPassword) {
             return res.status(401).send('Invalid password');
         }
 
-        req.session.user = { id: user.id, name: user.name, username: user.username };
+        req.session.user = { id: user.UserID, name: user.UserName };
         req.session.save(err => { 
-        if (err) {
-            return res.status(500).send('Error saving session');
-        }
-        const redirectTo = req.session.originalUrl || '/';
-        delete req.session.originalUrl;
-        res.redirect(redirectTo);
-      });
+            if (err) {
+                return res.status(500).send('Error saving session');
+            }
+            res.redirect('/');
+        });
     });
   });
 
 
-  function getUserByUsername(username, callback) {
-      callback(null, { id: 1, name: 'John Doe', username: 'johndoe', hashedPassword: 'hashedpassword' });
-  }
+  app.get('/register', (req, res) => {
+    res.render('register.ejs', forumData);
+  });
 
-  function validatePassword(inputPassword, storedHashedPassword) {
-      return inputPassword === 'password';
-  }
+  app.post('/register', async (req, res) => {
+    try {
+        const { username, password, confirmPassword, firstName, surname, country } = req.body;
+
+        if (password !== confirmPassword) {
+            return res.status(400).send('Passwords do not match');
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        db.query('CALL RegisterUser(?, ?, ?, ?, ?)', [username, firstName, surname, hashedPassword, country], (err, result) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Error registering new user');
+            }
+            res.redirect('/login');
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+  });
 
   app.get('/logout', function (req, res) {
     req.session.destroy(err => {
