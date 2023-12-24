@@ -17,7 +17,7 @@
         </div>
       </form>
       
-      <div id="bookList" class="search-results"></div>
+      <div id="bookList" class="search-results" style="display: none;"></div>
 
       <div class="card">
         <form method="POST" action="/reviewadded">
@@ -51,29 +51,31 @@
         $('#bookSearchForm').on('submit', function(e) {
           e.preventDefault();
           var query = $('#bookSearch').val();
-          $('#bookList').empty();
+          $('#bookList').empty().hide();
     
           if (query.length > 2) {
             $.getJSON("/searchBooks?q=" + query, function(data) {
-              if (data.items) {
+              if (data.items && data.items.length > 0) {
+                var resultList = $('<ul class="result-list"></ul>');
                 data.items.forEach(function(item) {
-                  $('#bookList').append('<div class="book-item" data-isbn="' + (item.volumeInfo.industryIdentifiers ? item.volumeInfo.industryIdentifiers[0].identifier : '') + '" data-name="' + item.volumeInfo.title + '">' + item.volumeInfo.title + '</div>');
+                  resultList.append('<li class="book-item" data-isbn="' + (item.volumeInfo.industryIdentifiers ? item.volumeInfo.industryIdentifiers[0].identifier : '') + '" data-name="' + item.volumeInfo.title + '">' + item.volumeInfo.title + '</li>');
                 });
-              } else {
-                $('#bookList').append('<p>No books found. Please try a different search.</p>');
+                $('#bookList').append(resultList).show(); 
+                $('#bookList').append('<p>No books found. Please try a different search.</p>').show();
               }
-    
-              $('.book-item').click(function() {
-                var isbn = $(this).data('isbn');
-                var name = $(this).data('name');
-                $('#isbn').val(isbn);
-                $('#bookName').val(name);
-                $('#bookList').empty();
-              });
             });
           }
         });
+    
+        $(document).on('click', '.book-item', function() {
+          var isbn = $(this).data('isbn');
+          var name = $(this).data('name');
+          $('#isbn').val(isbn);
+          $('#bookName').val(name);
+          $('#bookList').empty().hide();
+        });
       });
     </script>
+        
   </body>
 </html>

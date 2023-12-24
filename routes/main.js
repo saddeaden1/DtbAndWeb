@@ -1,5 +1,8 @@
 const bcrypt = require('bcrypt');
 const axios = require('axios');
+const https = require('https');
+
+axios.defaults.proxy = false;
 
 // Route handler for forum web app
 const redirectLogin = (req, res, next) => {
@@ -190,7 +193,13 @@ module.exports = function (app, forumData) {
     try {
         const query = req.query.q;
         const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}`;
-        const response = await axios.get(url);
+
+        const httpsAgent = new https.Agent({  
+            rejectUnauthorized: false
+        });
+
+        const response = await axios.get(url, { httpsAgent });
+
         res.json(response.data);
     } catch (error) {
         console.error('Error fetching data from Google Books API:', error);
