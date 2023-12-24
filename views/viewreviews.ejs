@@ -1,41 +1,35 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= forumName %> - Reviews</title>
+<head>
+    <title><%= forumName %> - Book Reviews</title>
     <link rel="stylesheet" type="text/css" href="/main.css" />
-  </head>
-  <body>
+</head>
+<body>
     <%- include('./partials/header.ejs'); -%>
     <div class="container">
-      <h2>View Reviews</h2>
-      <div class="card">
-        <% if (reviews.length > 0) { %>
-          <table class="styled-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Book</th>
-                <th>Review Title</th>
-                <th>Rating</th>
-                <th>User</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% reviews.forEach(function(review) { %>
-              <tr>
-                <td><%= review.PostDate.toDateString() %></td>
-                <td><%= review.BookName %></td>
-                <td><a href="/review/<%= review.ReviewID %>"><%= review.PostTitle %></a></td>
-                <td><%= review.Rating %>/5</td>
-                <td><%= review.UserName %></td>
-              </tr>
-              <% }) %>
-            </tbody>
-          </table>
-        <% } else { %>
-          <p>No reviews available.</p>
-        <% } %>
-      </div>
+        <h2>Books with Reviews</h2>
+        <div class="card">
+            <% if (books.length > 0) { %>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Book Name</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% books.forEach(function(book) { %>
+                            <tr>
+                                <td><%= book.BookName %></td>
+                                <td><a href="/bookreviews/<%= book.ISBN %>">View Reviews</a></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <p>No books available.</p>
+            <% } %>
+        </div>
     </div>
-  </body>
+</body>
 </html>

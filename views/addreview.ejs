@@ -9,10 +9,20 @@
     <%- include('./partials/header.ejs'); -%>
     <div class="container">
       <h2>Add a New Review</h2>
+      <form id="bookSearchForm">
+        <div class="form-group">
+            <label for="bookSearch">Search Book:</label>
+            <input type="text" id="bookSearch" name="bookSearch" required />
+            <button type="submit" class="btn">Search</button>
+        </div>
+      </form>
+      
+      <div id="bookList" class="search-results"></div>
+
       <div class="card">
         <form method="POST" action="/reviewadded">
           <div class="form-group">
-            <label for="bookName">Name:</label>
+            <label for="bookName">Book Name:</label>
             <input type="text" name="name" id="bookName" required />
           </div>
           <div class="form-group">
@@ -30,7 +40,7 @@
           <button type="submit" class="btn">Submit Review</button>
         </form>
       </div>
-  </div>
+    </div>
 
     <% if (errormessage) { %>
         <p class="error"><%= errormessage %></p>
@@ -38,16 +48,21 @@
 
     <script>
       $(document).ready(function() {
-        $('#bookSearch').on('input', function() {
-          var query = $(this).val();
+        $('#bookSearchForm').on('submit', function(e) {
+          e.preventDefault();
+          var query = $('#bookSearch').val();
           $('#bookList').empty();
-
+    
           if (query.length > 2) {
-            $.getJSON("https://www.googleapis.com/books/v1/volumes?q=" + query, function(data) {
-              data.items.forEach(function(item) {
-                $('#bookList').append('<div class="book-item" data-isbn="' + (item.volumeInfo.industryIdentifiers ? item.volumeInfo.industryIdentifiers[0].identifier : '') + '" data-name="' + item.volumeInfo.title + '">' + item.volumeInfo.title + '</div>');
-              });
-
+            $.getJSON("/searchBooks?q=" + query, function(data) {
+              if (data.items) {
+                data.items.forEach(function(item) {
+                  $('#bookList').append('<div class="book-item" data-isbn="' + (item.volumeInfo.industryIdentifiers ? item.volumeInfo.industryIdentifiers[0].identifier : '') + '" data-name="' + item.volumeInfo.title + '">' + item.volumeInfo.title + '</div>');
+                });
+              } else {
+                $('#bookList').append('<p>No books found. Please try a different search.</p>');
+              }
+    
               $('.book-item').click(function() {
                 var isbn = $(this).data('isbn');
                 var name = $(this).data('name');

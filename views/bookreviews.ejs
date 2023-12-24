@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= forumName %> - Reviews</title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+    <%- include('./partials/header.ejs'); -%>
+    <div class="container">
+        <h2>Reviews</h2>
+        <div class="card">
+            <% if (reviews.length > 0) { %>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Review Title</th>
+                            <th>Rating</th>
+                            <th>User</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% reviews.forEach(function(review) { %>
+                            <tr>
+                                <td><%= review.PostTitle %></td>
+                                <td><%= review.Rating %>/5</td>
+                                <td><%= review.UserName %></td>
+                                <td><%= review.PostDate.toDateString() %></td>
+                                <td><a href="/review/<%= review.ReviewID %>">View Review</a></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <p>No reviews for this book.</p>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,4 +1,6 @@
 const bcrypt = require('bcrypt');
+const axios = require('axios');
+
 // Route handler for forum web app
 const redirectLogin = (req, res, next) => {
   if (!req.session.user) { 
@@ -22,7 +24,7 @@ module.exports = function (app, forumData) {
   });
 
   // About page
-  app.get("/about", redirectLogin, function (req, res) {
+  app.get("/about", function (req, res) {
     res.render("about.ejs", forumData);
   });
 
@@ -98,17 +100,14 @@ module.exports = function (app, forumData) {
 
   // View Book Reviews
   app.get("/viewreviews", redirectLogin, function (req, res) {
-    let sqlquery = `SELECT ReviewID, ISBN, ReviewText, PostDate, PostTitle, Rating, UserName
-                    FROM reviews
-                    JOIN users ON reviews.UserID = users.UserID
-                    ORDER BY PostDate DESC`;
+    let sqlquery = `SELECT BookName, ISBN FROM vw_books_with_reviews`;
 
     db.query(sqlquery, (err, result) => {
         if (err) {
             res.redirect("./");
         }
 
-        let data = Object.assign({}, forumData, { reviews: result }, );
+        let data = Object.assign({}, forumData, { books: result });
         res.render("viewreviews.ejs", data);
     });
   });
@@ -139,6 +138,23 @@ module.exports = function (app, forumData) {
     });
   });
 
+  app.get("/bookreviews/:isbn", redirectLogin, function (req, res) {
+    let sqlquery = `SELECT ReviewID, ReviewText, PostDate, PostTitle, Rating, UserName
+                    FROM vw_book_reviews
+                    WHERE ISBN = ?
+                    ORDER BY PostDate DESC`;
+
+    db.query(sqlquery, [req.params.isbn], (err, result) => {
+        if (err) {
+            return res.redirect("./");
+        }
+
+        let data = Object.assign({}, forumData, { reviews: result });
+        res.render("bookreviews.ejs", data);
+    });
+});
+
+
   // Add a New Reveiw page
   app.get("/addreview", redirectLogin, function (req, res) {
     // Set the initial values for the form
@@ -153,7 +169,6 @@ module.exports = function (app, forumData) {
       let data = Object.assign({}, { forumName: forumData.forumName }, initialvalues, {
           errormessage: errormessage,
       });
-      console.log(data);
       res.render("addreview.ejs", data);
       return;
   }
@@ -169,6 +184,18 @@ module.exports = function (app, forumData) {
         }
         res.send("Review added successfully");
     });
+  });
+
+  app.get('/searchBooks', async (req, res) => {
+    try {
+        const query = req.query.q;
+        const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}`;
+        const response = await axios.get(url);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error fetching data from Google Books API:', error);
+        res.status(500).send('Error fetching data');
+    }
   });
 };
 

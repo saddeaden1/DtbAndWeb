@@ -97,3 +97,28 @@ CREATE PROCEDURE LoginUser(IN p_UserName VARCHAR(50))
 BEGIN
     SELECT UserID, UserName, HashedPassword FROM users WHERE UserName = p_UserName;
 END;
+
+CREATE VIEW vw_book_reviews AS
+SELECT 
+    reviews.ReviewID, 
+    reviews.ReviewText, 
+    reviews.PostDate, 
+    reviews.PostTitle, 
+    reviews.Rating, 
+    reviews.ISBN,
+    users.UserName
+FROM 
+    reviews
+JOIN 
+    users ON reviews.UserID = users.UserID;
+
+CREATE VIEW vw_books_with_reviews AS
+SELECT DISTINCT 
+    books.BookName, 
+    books.ISBN
+FROM 
+    reviews
+JOIN 
+    books ON reviews.ISBN = books.ISBN
+ORDER BY 
+    books.BookName;
