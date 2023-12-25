@@ -58,10 +58,17 @@ module.exports = function (app, forumData) {
             if (err) {
                 return res.status(500).send('Error saving session');
             }
-            const redirectTo = req.session.originalUrl || '/';
-            console.log(redirectTo);
+
+
+
+            const protocol = req.protocol;
+            const host = req.headers.host; 
+            const baseUrl = `${protocol}://${host}`;
+
+            const defaultRedirectPath = '/'; 
+            const redirectTo = req.session.originalUrl || defaultRedirectPath;
             delete req.session.originalUrl;
-            console.log(redirectTo);
+
             res.redirect(redirectTo);
         });
     });
