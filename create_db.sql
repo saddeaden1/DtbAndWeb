@@ -21,65 +21,63 @@ CREATE TABLE users (
 
 # Create the Books table to store the list of books reveiwed
 CREATE TABLE books (
-    ISBN VARCHAR(50) PRIMARY KEY,
+    BookID INT AUTO_INCREMENT PRIMARY KEY,
+    ISBN VARCHAR(50),
     BookName VARCHAR(255) NOT NULL,
     Author VARCHAR(255) NOT NULL,
-    Category VARCHAR(100)
+    Category VARCHAR(100),
+    GoogleBooksID VARCHAR(255)
 );
 
 # Create the reviews table to store the user reviews
 CREATE TABLE reviews (
-    ReviewID INT NOT NULL UNIQUE AUTO_INCREMENT PRIMARY KEY,
+    ReviewID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT,
-    ISBN VARCHAR(50),
+    BookID INT,
     ReviewText MEDIUMTEXT,
     PostDate DATETIME,
     PostTitle VARCHAR(30),
     Rating INT CHECK (Rating >= 1 AND Rating <= 5),
     FOREIGN KEY (UserID) REFERENCES users(UserID),
-    FOREIGN KEY (ISBN) REFERENCES books(ISBN)
+    FOREIGN KEY (BookID) REFERENCES books(BookID)
 );
 
 # Create the replies table to store the user replies to reveiws
-CREATE TABLE replys (
-    reply_id INT NOT NULL UNIQUE AUTO_INCREMENT,
-    reply MEDIUMTEXT,
+CREATE TABLE replies (
+    ReplyID INT AUTO_INCREMENT PRIMARY KEY,
+    Reply MEDIUMTEXT,
     UserID INT,
     ReviewID INT,
-    PRIMARY KEY(reply_id),
     FOREIGN KEY (UserID) REFERENCES users(UserID),
     FOREIGN KEY (ReviewID) REFERENCES reviews(ReviewID)
 );
-       
-INSERT INTO users (UserName, FirstName, Surname, HashedPassword, Country)
-VALUES 
+
+INSERT INTO users (UserName, FirstName, Surname, HashedPassword, Country) VALUES 
 ('johndoe', 'John', 'Doe', 'hashedpassword1111111111111111111', 'USA'),
 ('janedoe', 'Jane', 'Doe', 'hashedpassword222222222222222222', 'UK'),
 ('joew', 'Joe', 'Wonderland', 'hashedpassword3333333333', 'Australia'),
 ('fredb', 'Fred', 'Builder', 'hashedpassword44444444444', 'Canada'),
 ('saddeaden', 'Sadde', 'Aden', '$2b$10$MFVDXsR3u32pnwW0z5fRG.h7r169nO2U1TKnSpsepsLeKMkssjjL6', 'United Kingdom');
 
-INSERT INTO books (ISBN, BookName, Author, Category)
-VALUES 
-('978-3-16-148410-0', 'The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction'),
-('979-8600420458', 'To Kill a Mockingbird', 'Harper Lee', 'Fiction'),
-('978-1790245840', 'The Sign of The Blood', 'Jane Austen', 'Horror'),
-('979-8986770505', 'Fire Marker Man', 'George Orwell', 'Sci-Fi');
+INSERT INTO books (ISBN, BookName, Author, Category, GoogleBooksID) VALUES 
+('978-3-16-148410-0', 'The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction', 'iXn5U2IzVH0C'),
+('979-8600420458', 'To Kill a Mockingbird', 'Harper Lee', 'Fiction', 'i5PsAwAAQBAJ'),
+('978-1790245840', 'The Sign of The Blood', 'Jane Austen', 'Horror', 'kjziygEACAAJ'),
+('979-8986770505', 'Fire Marker Man', 'George Orwell', 'Sci-Fi', 'SxdWzwEACAAJ');
 
-INSERT INTO reviews (UserID, ISBN, ReviewText, PostDate, PostTitle, Rating)
+INSERT INTO reviews (UserID, BookID, ReviewText, PostDate, PostTitle, Rating)
 VALUES 
-(1, '978-3-16-148410-0', 'Great read this was', '2023-12-01 10:00:00', 'Classic', 5),
-(2, '979-8600420458', 'An inspiration', '2023-12-02 11:30:00', 'Inspiration', 4),
-(3, '978-1790245840', 'I liked this book', '2023-12-03 09:15:00', 'Great read', 4),
-(4, '979-8986770505', 'Did not like this very much, very boring', '2023-12-04 08:45:00', 'Very boring', 5);
+(1, (SELECT BookID FROM books WHERE ISBN = '978-3-16-148410-0'), 'Great read this was', '2023-12-01 10:00:00', 'Classic', 5),
+(2, (SELECT BookID FROM books WHERE ISBN = '979-8600420458'), 'An inspiration', '2023-12-02 11:30:00', 'Inspiration', 4),
+(3, (SELECT BookID FROM books WHERE ISBN = '978-1790245840'), 'I liked this book', '2023-12-03 09:15:00', 'Great read', 4),
+(4, (SELECT BookID FROM books WHERE ISBN = '979-8986770505'), 'Did not like this very much, very boring', '2023-12-04 08:45:00', 'Very boring', 5);
 
-INSERT INTO replys (reply, UserID, ReviewID)
+INSERT INTO replies (Reply, UserID, ReviewID)
 VALUES 
-('Gread insight i totally agree', 2, 1),
+('Great insight, I totally agree', 2, 1),
 ('I disagree actually', 1, 2),
-('This is my fav', 4, 3),
-('This book was thought provocing', 3, 4);
-
+('This is my favorite', 4, 3),
+('This book was thought-provoking', 3, 4);
 
 CREATE PROCEDURE RegisterUser(IN p_UserName VARCHAR(50), IN p_FirstName VARCHAR(20), IN p_Surname VARCHAR(20), IN p_HashedPassword VARCHAR(255), IN p_Country VARCHAR(50))
 BEGIN
@@ -98,6 +96,19 @@ BEGIN
     SELECT UserID, UserName, HashedPassword FROM users WHERE UserName = p_UserName;
 END;
 
+CREATE VIEW vw_books_with_reviews AS
+SELECT DISTINCT 
+    books.BookID,
+    books.BookName, 
+    books.ISBN,
+    books.GoogleBooksID
+FROM 
+    reviews
+JOIN 
+    books ON reviews.BookID = books.BookID
+ORDER BY 
+    books.BookName;
+
 CREATE VIEW vw_book_reviews AS
 SELECT 
     reviews.ReviewID, 
@@ -105,20 +116,13 @@ SELECT
     reviews.PostDate, 
     reviews.PostTitle, 
     reviews.Rating, 
-    reviews.ISBN,
+    books.BookID,
+    books.BookName,
+    books.GoogleBooksID,
     users.UserName
 FROM 
     reviews
 JOIN 
-    users ON reviews.UserID = users.UserID;
-
-CREATE VIEW vw_books_with_reviews AS
-SELECT DISTINCT 
-    books.BookName, 
-    books.ISBN
-FROM 
-    reviews
-JOIN 
-    books ON reviews.ISBN = books.ISBN
-ORDER BY 
-    books.BookName;
+    users ON reviews.UserID = users.UserID
+JOIN
+    books ON reviews.BookID = books.BookID;

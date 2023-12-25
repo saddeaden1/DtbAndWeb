@@ -7,7 +7,10 @@
 <body>
     <%- include('./partials/header.ejs'); -%>
     <div class="container">
-        <h2>Reviews</h2>
+        <h2>Reviews for <%= reviews[0].BookName %></h2>
+        <% if (reviews[0].GoogleBooksID) { %>
+            <img src='http://books.google.com/books/content?id=<%= reviews[0].GoogleBooksID %>&printsec=frontcover&img=1&zoom=5&source=gbs_api' alt="<%= reviews[0].BookName %>" style="width:100px;height:100px;">
+        <% } %>
         <div class="card">
             <% if (reviews.length > 0) { %>
                 <table class="styled-table">

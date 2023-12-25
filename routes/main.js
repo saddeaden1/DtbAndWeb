@@ -104,33 +104,45 @@ module.exports = function (app, forumData) {
 
   // View Book Reviews
   app.get("/viewreviews", redirectLogin, function (req, res) {
-    let sqlquery = `SELECT BookName, ISBN FROM vw_books_with_reviews`;
+    let sqlquery = `SELECT BookID, BookName, GoogleBooksID FROM vw_books_with_reviews`;
 
-    db.query(sqlquery, (err, result) => {
+    db.query(sqlquery, (err, books) => {
         if (err) {
-            res.redirect("/");//todo: fix
+            console.error(err);
+            return res.redirect("/");
         }
 
-        let data = Object.assign({}, forumData, { books: result });
+        let data = Object.assign({}, forumData, { books: books });
         res.render("viewreviews.ejs", data);
     });
   });
 
-  // View Book Review
+  // View Book Review and replies to that reveiw 
   app.get("/review/:reviewId", redirectLogin, function (req, res) {
-    let reviewQuery = `SELECT * FROM reviews WHERE ReviewID = ?`;
-    let repliesQuery = `SELECT * FROM replys WHERE ReviewID = ?`;
+    let reviewQuery = `SELECT r.ReviewID, r.ReviewText, r.PostDate, r.PostTitle, r.Rating, u.UserName 
+                       FROM reviews r
+                       JOIN users u ON r.UserID = u.UserID
+                       WHERE r.ReviewID = ?`;
 
-    //todo doesn't show who it was reviewed by 
+    let repliesQuery = `SELECT rep.ReplyID, rep.Reply, u.UserName 
+                        FROM replies rep
+                        JOIN users u ON rep.UserID = u.UserID
+                        WHERE rep.ReviewID = ?`;
 
     db.query(reviewQuery, [req.params.reviewId], (err, reviewResult) => {
         if (err) {
+            console.error(err);
             return res.redirect("./");
+        }
+
+        if (reviewResult.length === 0) {
+            return res.status(404).send("Review not found");
         }
 
         db.query(repliesQuery, [req.params.reviewId], (err, repliesResult) => {
             if (err) {
-                return res.redirect("./");//todo fix
+                console.error(err);
+                return res.redirect("./");
             }
 
             let data = {
@@ -144,19 +156,39 @@ module.exports = function (app, forumData) {
     });
   });
 
-  app.get("/bookreviews/:isbn", redirectLogin, function (req, res) {
-    let sqlquery = `SELECT ReviewID, ReviewText, PostDate, PostTitle, Rating, UserName
+  app.get("/bookreviews/:bookId", redirectLogin, function (req, res) {
+    let sqlquery = `SELECT ReviewID, ReviewText, PostDate, PostTitle, Rating, UserName, BookName, GoogleBooksID
                     FROM vw_book_reviews
-                    WHERE ISBN = ?
+                    WHERE BookID = ?
                     ORDER BY PostDate DESC`;
 
-    db.query(sqlquery, [req.params.isbn], (err, result) => {
+    db.query(sqlquery, [req.params.bookId], (err, result) => {
         if (err) {
-            return res.redirect("./"); //todo a error page 
+            console.error(err);
+            return res.redirect("./");
         }
 
         let data = Object.assign({}, forumData, { reviews: result });
         res.render("bookreviews.ejs", data);
+    });
+  });
+
+  app.post("/addreply", redirectLogin, (req, res) => {
+    const replyContent = req.body.content;
+    const reviewId = req.body.reviewId;
+    const userId = req.session.user.id;
+
+    //TODO: data sanitisation 
+
+    let insertReplyQuery = `INSERT INTO replies (Reply, UserID, ReviewID) VALUES (?, ?, ?)`;
+
+    db.query(insertReplyQuery, [replyContent, userId, reviewId], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.redirect(`./`);
+        }
+
+        res.redirect(`/review/${reviewId}`);
     });
 });
 
@@ -220,6 +252,9 @@ module.exports = function (app, forumData) {
   });
   
   app.post('/submitreview', (req, res) => {
+
+
+
   });
 
   app.post("/reviewadded", function (req, res) {

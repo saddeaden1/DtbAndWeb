@@ -32,7 +32,7 @@
               <tbody>
                 <% replies.forEach(function(reply) { %>
                 <tr>
-                  <td><%= reply.reply %></td>
+                  <td><%= reply.Reply %></td>
                   <td>By: <%= reply.UserName %></td>
                 </tr>
                 <% }) %>
@@ -47,15 +47,14 @@
       <section class="reply-form-section">
         <h2>Make a reply</h2>
         <div class="card">
-          <form method="POST" action="/reply">
+          <form method="POST" action="/addreply">
             <div class="form-group">
-              <label for="content">Your Reply:</label>
-              <textarea id="content" name="content" placeholder="Write your reply here..."></textarea>
+                <label for="content">Your Reply:</label>
+                <textarea id="content" name="content" placeholder="Write your reply here..." required></textarea>
             </div>
-            <input type="hidden" id="post_title" name="post_id" value="<%= review.PostTitle %>" >
-            <input type="hidden" id="username" name="username" value="username" >
+            <input type="hidden" name="reviewId" value="<%= review.ReviewID %>" >
             <button type="submit" class="btn">Post Reply</button>
-          </form>
+        </form>
         </div>
       </section>
     </div>

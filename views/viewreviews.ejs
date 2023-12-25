@@ -14,14 +14,16 @@
                     <thead>
                         <tr>
                             <th>Book Name</th>
-                            <th>Actions</th>
+                            <th>Image</th>
                         </tr>
                     </thead>
                     <tbody>
                         <% books.forEach(function(book) { %>
                             <tr>
-                                <td><%= book.BookName %></td>
-                                <td><a href="/bookreviews/<%= book.ISBN %>">View Reviews</a></td>
+                                <td><a href="/bookreviews/<%= book.BookID %>"><%= book.BookName %></a></td>
+                                <td>
+                                    <img src='http://books.google.com/books/content?id=<%= book.GoogleBooksID %>&printsec=frontcover&img=1&zoom=5&source=gbs_api' alt="<%= book.BookName %>" style="width:100px;height:100px;">
+                                </td>
                             </tr>
                         <% }) %>
                     </tbody>
