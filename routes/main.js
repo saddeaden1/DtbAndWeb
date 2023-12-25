@@ -121,6 +121,8 @@ module.exports = function (app, forumData) {
     let reviewQuery = `SELECT * FROM reviews WHERE ReviewID = ?`;
     let repliesQuery = `SELECT * FROM replys WHERE ReviewID = ?`;
 
+    //todo doesn't show who it was reviewed by 
+
     db.query(reviewQuery, [req.params.reviewId], (err, reviewResult) => {
         if (err) {
             return res.redirect("./");
@@ -150,7 +152,7 @@ module.exports = function (app, forumData) {
 
     db.query(sqlquery, [req.params.isbn], (err, result) => {
         if (err) {
-            return res.redirect("./");
+            return res.redirect("./"); //todo a error page 
         }
 
         let data = Object.assign({}, forumData, { reviews: result });
@@ -215,10 +217,9 @@ module.exports = function (app, forumData) {
         console.error('Error fetching book details:', error);
         res.status(500).send('Error fetching book details. <a href='+'/'+'>Home</a>');
     }
-});
+  });
   
   app.post('/submitreview', (req, res) => {
-
   });
 
   app.post("/reviewadded", function (req, res) {
