@@ -1,37 +1,45 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title><%= forumName %> - Book Reviews</title>
     <link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
-<body>
+  </head>
+  <body>
     <%- include('./partials/header.ejs'); -%>
     <div class="container">
-        <h2>Books with Reviews</h2>
-        <div class="card">
-            <% if (books.length > 0) { %>
-                <table class="styled-table">
-                    <thead>
-                        <tr>
-                            <th>Book Name</th>
-                            <th>Image</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% books.forEach(function(book) { %>
-                            <tr>
-                                <td><a href="/bookreviews/<%= book.BookID %>"><%= book.BookName %></a></td>
-                                <td>
-                                    <img src='http://books.google.com/books/content?id=<%= book.GoogleBooksID %>&printsec=frontcover&img=1&zoom=5&source=gbs_api' alt="<%= book.BookName %>" style="width:100px;height:100px;">
-                                </td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-            <% } else { %>
-                <p>No books available.</p>
-            <% } %>
-        </div>
+      <h2>Books with Reviews</h2>
+      <div class="card">
+        <% if (books.length > 0) { %>
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>Book Name</th>
+              <th>Image</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% books.forEach(function(book) { %>
+            <tr>
+              <td>
+                <a href="/bookreviews/<%= book.BookID %>"
+                  ><%= book.BookName %></a
+                >
+              </td>
+              <td>
+                <img
+                  src="http://books.google.com/books/content?id=<%= book.GoogleBooksID %>&printsec=frontcover&img=1&zoom=5&source=gbs_api"
+                  alt="<%= book.BookName %>"
+                  style="width: 100px; height: 100px"
+                />
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+        <% } else { %>
+        <p>No books available.</p>
+        <% } %>
+      </div>
     </div>
-</body>
+  </body>
 </html>

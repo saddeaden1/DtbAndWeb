@@ -1,44 +1,48 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title><%= forumName %> - Reviews</title>
     <link rel="stylesheet" type="text/css" href="/main.css" />
-</head>
-<body>
+  </head>
+  <body>
     <%- include('./partials/header.ejs'); -%>
     <div class="container">
-        <h2>Reviews for <%= reviews[0].BookName %></h2>
-        <% if (reviews[0].GoogleBooksID) { %>
-            <img src='http://books.google.com/books/content?id=<%= reviews[0].GoogleBooksID %>&printsec=frontcover&img=1&zoom=5&source=gbs_api' alt="<%= reviews[0].BookName %>" style="width:100px;height:100px;">
+      <h2>Reviews for <%= reviews[0].BookName %></h2>
+      <% if (reviews[0].GoogleBooksID) { %>
+      <img
+        src="http://books.google.com/books/content?id=<%= reviews[0].GoogleBooksID %>&printsec=frontcover&img=1&zoom=5&source=gbs_api"
+        alt="<%= reviews[0].BookName %>"
+        style="width: 100px; height: 100px"
+      />
+      <% } %>
+      <div class="card">
+        <% if (reviews.length > 0) { %>
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>Review Title</th>
+              <th>Rating</th>
+              <th>User</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% reviews.forEach(function(review) { %>
+            <tr>
+              <td><%= review.PostTitle %></td>
+              <td><%= review.Rating %>/5</td>
+              <td><%= review.UserName %></td>
+              <td><%= review.PostDate.toDateString() %></td>
+              <td><a href="/review/<%= review.ReviewID %>">View Review</a></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+        <% } else { %>
+        <p>No reviews for this book.</p>
         <% } %>
-        <div class="card">
-            <% if (reviews.length > 0) { %>
-                <table class="styled-table">
-                    <thead>
-                        <tr>
-                            <th>Review Title</th>
-                            <th>Rating</th>
-                            <th>User</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% reviews.forEach(function(review) { %>
-                            <tr>
-                                <td><%= review.PostTitle %></td>
-                                <td><%= review.Rating %>/5</td>
-                                <td><%= review.UserName %></td>
-                                <td><%= review.PostDate.toDateString() %></td>
-                                <td><a href="/review/<%= review.ReviewID %>">View Review</a></td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-            <% } else { %>
-                <p>No reviews for this book.</p>
-            <% } %>
-        </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>

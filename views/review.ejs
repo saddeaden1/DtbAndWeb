@@ -14,7 +14,10 @@
         </div>
         <div class="review-details">
           <p class="rating">Rating: <%= review.Rating %>/5</p>
-          <p class="meta">Reviewed by <%= review.UserName %> on <%= review.PostDate.toDateString() %></p>
+          <p class="meta">
+            Reviewed by <%= review.UserName %> on <%=
+            review.PostDate.toDateString() %>
+          </p>
         </div>
       </div>
 
@@ -22,24 +25,24 @@
         <h2>Replies</h2>
         <div class="card">
           <% if (replies.length > 0) { %>
-            <table class="styled-table">
-              <thead>
-                <tr>
-                  <th>Reply</th>
-                  <th>User</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% replies.forEach(function(reply) { %>
-                <tr>
-                  <td><%= reply.Reply %></td>
-                  <td>By: <%= reply.UserName %></td>
-                </tr>
-                <% }) %>
-              </tbody>
-            </table>
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Reply</th>
+                <th>User</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% replies.forEach(function(reply) { %>
+              <tr>
+                <td><%= reply.Reply %></td>
+                <td>By: <%= reply.UserName %></td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
           <% } else { %>
-            <p>No replies yet.</p>
+          <p>No replies yet.</p>
           <% } %>
         </div>
       </section>
@@ -49,15 +52,24 @@
         <div class="card">
           <form method="POST" action="/addreply">
             <div class="form-group">
-                <label for="content">Your Reply:</label>
-                <textarea id="content" name="content" placeholder="Write your reply here..." required></textarea>
+              <label for="content">Your Reply:</label>
+              <textarea
+                id="content"
+                name="content"
+                placeholder="Write your reply here..."
+                required
+              ></textarea>
             </div>
-            <input type="hidden" name="reviewId" value="<%= review.ReviewID %>" >
+            <input
+              type="hidden"
+              name="reviewId"
+              value="<%= review.ReviewID %>"
+            />
             <button type="submit" class="btn">Post Reply</button>
-        </form>
+          </form>
         </div>
         <% if (errorMessage) { %>
-          <div class="error-message"><%= errorMessage %></div>
+        <div class="error-message"><%= errorMessage %></div>
         <% } %>
       </section>
     </div>
