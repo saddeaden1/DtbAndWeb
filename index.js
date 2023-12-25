@@ -30,8 +30,8 @@ app.use((req, res, next) => {
 
 app.use(expressSanitizer());
 
-function runSetupScript() {
-  sqlquery = fs.readFileSync(path.join(__dirname, "create_db.sql"), {
+function runSetupScript(callback) {
+  const sqlquery = fs.readFileSync(path.join(__dirname, "create_db.sql"), {
     encoding: "utf-8",
   });
 
@@ -44,45 +44,49 @@ function runSetupScript() {
 
   connection.connect(function (err) {
     if (err) {
-      console.log(err);
-      return;
+      console.error("Error connecting to MySQL:", err);
+      return callback(err);
     }
 
     connection.query(sqlquery, function (error, results, fields) {
+      connection.end();
+
       if (error) {
         console.error("Error executing SQL script:", error);
+        return callback(error);
       } else {
         console.log("SQL script executed successfully.");
+        callback(null);
       }
-      connection.end();
     });
   });
 }
 
 function setupDatabase() {
-  try {
-    runSetupScript();
-    console.log("Database setup completed");
-  } catch (err) {
-    console.log(err);
-    return;
-  }
-
-  const db = mysql.createConnection({
-    host: "localhost",
-    user: "forumapp",
-    password: "qwerty",
-    database: "myforum",
-  });
-
-  db.connect(function (err) {
+  runSetupScript(function (err) {
     if (err) {
-      console.error("Failed to connect to database:", err);
+      console.error("Failed to run setup script:", err);
       return;
     }
 
-    console.log("Connected to database");
-    global.db = db;
+    console.log("Database setup completed");
+
+    const db = mysql.createConnection({
+      host: "localhost",
+      user: "forumapp",
+      password: "qwerty",
+      database: "myforum",
+    });
+
+    db.connect(function (err) {
+      if (err) {
+        console.error("Failed to connect to database:", err);
+        return;
+      }
+
+      console.log("Connected to database");
+      global.db = db;
+    });
   });
 }
 
