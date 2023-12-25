@@ -188,7 +188,7 @@ module.exports = function (app, forumData) {
             return res.redirect(`./`);
         }
 
-        res.redirect(`/review/${reviewId}`);
+        res.redirect(`./review/${reviewId}`);
     });
 });
 
