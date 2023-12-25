@@ -58,7 +58,8 @@ module.exports = function (app, forumData) {
             if (err) {
                 return res.status(500).send('Error saving session');
             }
-            res.redirect("/");
+
+            res.redirect("./");
         });
     });
   });
