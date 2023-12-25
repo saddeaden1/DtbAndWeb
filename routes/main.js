@@ -63,6 +63,8 @@ module.exports = function (app, forumData) {
             const host = req.headers.host; 
             const baseUrl = `${protocol}://${host}`;
 
+            console.log(baseUrl);
+
             const defaultRedirectPath = '/'; 
             const redirectTo = req.session.originalUrl || defaultRedirectPath;
             delete req.session.originalUrl;
