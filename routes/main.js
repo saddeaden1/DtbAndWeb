@@ -209,7 +209,7 @@ module.exports = function (app, forumData) {
 
   });
 
-    // Helper function to render the Add New Review page
+  // Helper function to render the Add New Review page
   function renderAddNewReview(res, initialvalues, errormessage) {
     let data = Object.assign({}, { forumName: forumData.forumName }, initialvalues, {
         errormessage: errormessage,
