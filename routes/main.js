@@ -113,10 +113,7 @@ module.exports = function (app, forumData) {
 
   app.get('/logout', function (req, res) {
     req.session.destroy(err => {
-        if (err) {
-            return res.redirect('./');
-        }
-        res.send('you are now logged out. <a href='+'./'+'>Home</a>');
+        return res.redirect('./');
     });
   });
 
