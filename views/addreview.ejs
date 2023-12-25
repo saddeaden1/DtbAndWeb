@@ -3,49 +3,29 @@
   <head>
     <title><%= forumName %> - Add Review</title>
     <link rel="stylesheet" type="text/css" href="/main.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   </head>
   <body>
     <%- include('./partials/header.ejs'); -%>
     <div class="container">
       <h2>Add a New Review</h2>
-      <form id="bookSearchForm">
+      <form id="bookSearchForm" action="/searchBooks" method="post">
         <div class="form-group">
             <label for="bookSearch">Search Book:</label>
-            <input type="text" id="bookSearch" name="bookSearch" required />
+            <input type="text" id="bookSearch" name="bookSearch" required/>
             <button type="submit" class="btn">Search</button>
         </div>
       </form>
       
-      <div id="bookList" class="search-results" style="display: none;"></div>
-
-    <script>
-      $(document).ready(function() {
-        $('#bookSearchForm').on('submit', function(e) {
-          e.preventDefault();
-          var query = $('#bookSearch').val();
-          $('#bookList').empty().hide();
-    
-          if (query.length > 2) {
-            $.getJSON("/searchBooks?q=" + query, function(data) {
-              if (data.items && data.items.length > 0) {
-                var resultList = $('<ul class="result-list"></ul>');
-                data.items.forEach(function(item) {
-                  resultList.append('<li class="book-item" data-isbn="' + (item.volumeInfo.industryIdentifiers ? item.volumeInfo.industryIdentifiers[0].identifier : '') + '" data-name="' + item.volumeInfo.title + '">' + item.volumeInfo.title + '</li>');
-                });
-                $('#bookList').append(resultList).show(); 
-                $('#bookList').append('<p>No books found. Please try a different search.</p>').show();
-              }
-            });
-          }
-        });
-    
-        $(document).on('click', '.book-item', function() {
-          var isbn = $(this).data('isbn');
-          window.location.href = '/book/' + isbn + '/addreview';
-        });
-      });
-    </script>
-        
+      <% if (bookList && bookList.length > 0) { %>
+        <div id="bookList" class="search-results">
+            <ul class="result-list">
+                <% bookList.forEach(function(item) { %>
+                    <li class="book-item">
+                        <a href="/book/<%= item.id %>/addreview" class="styled-table a"><%= item.volumeInfo.title %></a>
+                    </li>
+                <% }); %>
+            </ul>
+        </div>
+    <% } %>
   </body>
 </html>

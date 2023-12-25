@@ -159,42 +159,53 @@ module.exports = function (app, forumData) {
 });
 
 
-  app.get("/addreview", redirectLogin, function (req, res) {
-    res.render("addreview.ejs", { forumName: forumData.forumName });
+  app.get('/searchBooks', redirectLogin, (req, res) => {
+    renderAddNewReview(res, {}, [], null);
   });
 
-  app.get('/searchBooks', async (req, res) => {
-    try {
-        const query = req.query.q;
-        const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}`;
+  app.post('/searchBooks', async (req, res) => {
+      try {
+          const query = req.body.bookSearch;
+          const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}`;
 
-        const httpsAgent = new https.Agent({  
-            rejectUnauthorized: false
-        });
+          const httpsAgent = new https.Agent({  
+              rejectUnauthorized: false
+          });
 
-        const response = await axios.get(url, { httpsAgent });
+          const response = await axios.get(url, { httpsAgent });
 
-        res.json(response.data);
-    } catch (error) {
-        console.error('Error fetching data from Google Books API:', error);
-        res.status(500).send('Error fetching data');
-    }
+          renderAddNewReview(res, {}, response.data.items || [], null);
+      } catch (error) {
+          console.error('Error fetching data from Google Books API:', error);
+          renderAddNewReview(res, {}, [], 'Error fetching data');
+      }
   });
 
-  app.get('/book/:isbn/addreview', redirectLogin, async (req, res) => {
-    const isbn = req.params.isbn;
-    const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
+  // Helper function to render the Add New Review page
+  function renderAddNewReview(res, initialValues, bookList, errorMessage) {
+    let data = {
+        forumName: forumData.forumName,
+        initialValues: initialValues || {},
+        bookList: bookList || [],
+        errorMessage: errorMessage || null
+    };
+    res.render("addreview.ejs", data);
+  }
+
+  app.get('/book/:id/addreview', redirectLogin, async (req, res) => {
+    const bookId = req.params.id;
+    const url = `https://www.googleapis.com/books/v1/volumes/${bookId}`;
 
     try {
         const httpsAgent = new https.Agent({ rejectUnauthorized: false });
         const response = await axios.get(url, { httpsAgent });
-        const bookData = response.data.items && response.data.items.length > 0 ? response.data.items[0] : null;
+        const bookData = response.data;
 
         if (bookData) {
             const book = {
                 title: bookData.volumeInfo.title,
                 thumbnail: bookData.volumeInfo.imageLinks ? bookData.volumeInfo.imageLinks.thumbnail : null,
-                isbn: isbn
+                id: bookId
             };
             res.render('addbookreview.ejs', { book: book, forumName: forumData.forumName });
         } else {
@@ -204,20 +215,11 @@ module.exports = function (app, forumData) {
         console.error('Error fetching book details:', error);
         res.status(500).send('Error fetching book details');
     }
-  });
+});
   
   app.post('/submitreview', (req, res) => {
 
   });
-
-  // Helper function to render the Add New Review page
-  function renderAddNewReview(res, initialvalues, errormessage) {
-    let data = Object.assign({}, { forumName: forumData.forumName }, initialvalues, {
-        errormessage: errormessage,
-    });
-    res.render("addreview.ejs", data);
-    return;
-  }
 
   app.post("/reviewadded", function (req, res) {
     let { isbn, reviewText, rating } = req.body;
