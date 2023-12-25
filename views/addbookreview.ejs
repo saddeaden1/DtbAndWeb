@@ -18,6 +18,10 @@
             <div class="card review-card">
                 <form method="POST" action="/submitreview">
                     <div class="form-group">
+                        <label for="postTitle">Review Text:</label>
+                        <textarea name="postTitle" id="postTitle" required></textarea>
+                    </div>
+                    <div class="form-group">
                         <label for="reviewText">Review Text:</label>
                         <textarea name="reviewText" id="reviewText" required></textarea>
                     </div>
@@ -25,8 +29,7 @@
                         <label for="rating">Rating:</label>
                         <input type="number" name="rating" id="rating" min="1" max="5" required />
                     </div>
-                    <input type="hidden" name="isbn" id="isbn" value="<%= book.isbn %>" readonly />
-                    <input type="hidden" name="name" id="bookName" value="<%= book.title %>" readonly />
+                    <input type="hidden" name="bookId" value="<%= book.id %>">
                     <button type="submit" class="btn">Submit Review</button>
                 </form>
             </div>

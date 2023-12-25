@@ -26,7 +26,7 @@ CREATE TABLE books (
     BookName VARCHAR(255) NOT NULL,
     Author VARCHAR(255) NOT NULL,
     Category VARCHAR(100),
-    GoogleBooksID VARCHAR(255)
+    GoogleBooksID VARCHAR(255) UNIQUE
 );
 
 # Create the reviews table to store the user reviews
@@ -126,3 +126,39 @@ JOIN
     users ON reviews.UserID = users.UserID
 JOIN
     books ON reviews.BookID = books.BookID;
+
+CREATE PROCEDURE SubmitReview(
+    IN p_UserId INT, 
+    IN p_GoogleBooksID VARCHAR(255), 
+    IN p_PostTittle VARCHAR(30),
+    IN p_ReviewText TEXT, 
+    IN p_Rating INT, 
+    IN p_Title VARCHAR(255), 
+    IN p_Authors VARCHAR(255), 
+    IN p_ISBN VARCHAR(20)
+)
+BEGIN
+    DECLARE v_BookExists INT;
+    DECLARE v_BookID INT;
+
+    -- Start transaction
+    START TRANSACTION;
+
+    -- Check if the book already exists
+    SELECT COUNT(*) INTO v_BookExists FROM books WHERE GoogleBooksID = p_GoogleBooksID;
+
+    IF v_BookExists = 0 THEN
+        -- Insert the new book
+        INSERT INTO books (BookName, Author, ISBN, GoogleBooksID) VALUES (p_Title, p_Authors, p_ISBN, p_GoogleBooksID);
+    END IF;
+
+    -- Get the BookID of the book
+    SELECT BookID INTO v_BookID FROM books WHERE GoogleBooksID = p_GoogleBooksID;
+
+    -- Insert the review
+    INSERT INTO reviews (UserID, BookID, PostTitle,ReviewText, Rating, PostDate) VALUES (p_UserId, v_BookID, p_PostTittle, p_ReviewText, p_Rating, NOW());
+
+    -- Commit transaction
+    COMMIT;
+END;
+
