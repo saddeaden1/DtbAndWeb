@@ -61,6 +61,7 @@ module.exports = function (app, forumData) {
             const redirectTo = req.session.originalUrl || '/';
             console.log(redirectTo);
             delete req.session.originalUrl;
+            console.log(redirectTo);
             res.redirect(redirectTo);
         });
     });
