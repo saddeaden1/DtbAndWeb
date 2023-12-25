@@ -158,35 +158,8 @@ module.exports = function (app, forumData) {
 });
 
 
-  // Add a New Reveiw page
   app.get("/addreview", redirectLogin, function (req, res) {
-    // Set the initial values for the form
-    let initialvalues = { isbn: "", reviewText: "", rating: "" };
-
-    // Pass the data to the EJS page and view it
-    return renderAddNewReview(res, initialvalues, "");
-  });
-
-  // Helper function to render the Add New Review page
-  function renderAddNewReview(res, initialvalues, errormessage) {
-      let data = Object.assign({}, { forumName: forumData.forumName }, initialvalues, {
-          errormessage: errormessage,
-      });
-      res.render("addreview.ejs", data);
-      return;
-  }
-
-  app.post("/reviewadded", function (req, res) {
-    let { isbn, reviewText, rating } = req.body;
-    let userId = req.session.user ? req.session.user.id : 1; 
-
-    let sqlquery = `INSERT INTO reviews (UserID, ISBN, ReviewText, Rating) VALUES (?, ?, ?, ?)`;
-    db.query(sqlquery, [userId, isbn, reviewText, rating], (err, result) => {
-        if (err) {
-            return renderAddNewReview(res, req.body, err.message);
-        }
-        res.send("Review added successfully");
-    });
+    res.render("addreview.ejs", { forumName: forumData.forumName });
   });
 
   app.get('/searchBooks', async (req, res) => {
@@ -205,6 +178,57 @@ module.exports = function (app, forumData) {
         console.error('Error fetching data from Google Books API:', error);
         res.status(500).send('Error fetching data');
     }
+  });
+
+  app.get('/book/:isbn/addreview', redirectLogin, async (req, res) => {
+    const isbn = req.params.isbn;
+    const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
+
+    try {
+        const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+        const response = await axios.get(url, { httpsAgent });
+        const bookData = response.data.items && response.data.items.length > 0 ? response.data.items[0] : null;
+
+        if (bookData) {
+            const book = {
+                title: bookData.volumeInfo.title,
+                thumbnail: bookData.volumeInfo.imageLinks ? bookData.volumeInfo.imageLinks.thumbnail : null,
+                isbn: isbn
+            };
+            res.render('addbookreview.ejs', { book: book, forumName: forumData.forumName });
+        } else {
+            res.send("Book not found");
+        }
+    } catch (error) {
+        console.error('Error fetching book details:', error);
+        res.status(500).send('Error fetching book details');
+    }
+  });
+  
+  app.post('/submitreview', (req, res) => {
+
+  });
+
+    // Helper function to render the Add New Review page
+  function renderAddNewReview(res, initialvalues, errormessage) {
+    let data = Object.assign({}, { forumName: forumData.forumName }, initialvalues, {
+        errormessage: errormessage,
+    });
+    res.render("addreview.ejs", data);
+    return;
+  }
+
+  app.post("/reviewadded", function (req, res) {
+    let { isbn, reviewText, rating } = req.body;
+    let userId = req.session.user ? req.session.user.id : 1; 
+
+    let sqlquery = `INSERT INTO reviews (UserID, ISBN, ReviewText, Rating) VALUES (?, ?, ?, ?)`;
+    db.query(sqlquery, [userId, isbn, reviewText, rating], (err, result) => {
+        if (err) {
+            return renderAddNewReview(res, req.body, err.message);
+        }
+        res.send("Review added successfully");
+    });
   });
 };
 

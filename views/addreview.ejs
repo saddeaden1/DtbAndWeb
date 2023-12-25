@@ -19,33 +19,6 @@
       
       <div id="bookList" class="search-results" style="display: none;"></div>
 
-      <div class="card">
-        <form method="POST" action="/reviewadded">
-          <div class="form-group">
-            <label for="bookName">Book Name:</label>
-            <input type="text" name="name" id="bookName" required />
-          </div>
-          <div class="form-group">
-            <label for="isbn">ISBN:</label>
-            <input type="text" name="isbn" id="isbn" required />
-          </div>
-          <div class="form-group">
-            <label for="reviewText">Review Text:</label>
-            <textarea name="reviewText" required></textarea>
-          </div>
-          <div class="form-group">
-            <label for="rating">Rating:</label>
-            <input type="number" name="rating" min="1" max="5" required />
-          </div>
-          <button type="submit" class="btn">Submit Review</button>
-        </form>
-      </div>
-    </div>
-
-    <% if (errormessage) { %>
-        <p class="error"><%= errormessage %></p>
-    <% } %>
-
     <script>
       $(document).ready(function() {
         $('#bookSearchForm').on('submit', function(e) {
@@ -69,10 +42,7 @@
     
         $(document).on('click', '.book-item', function() {
           var isbn = $(this).data('isbn');
-          var name = $(this).data('name');
-          $('#isbn').val(isbn);
-          $('#bookName').val(name);
-          $('#bookList').empty().hide();
+          window.location.href = '/book/' + isbn + '/addreview';
         });
       });
     </script>

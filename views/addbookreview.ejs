@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= forumName %> - Add Review</title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+    <%- include('./partials/header.ejs'); -%>
+
+    <div class="container">
+        <h2>Add Review for <%= book.title %></h2>
+        <div class="review-flex-container">
+            <% if (book.thumbnail) { %>
+                <div class="book-thumbnail">
+                    <img src="<%= book.thumbnail %>" alt="<%= book.title %>">
+                </div>
+            <% } %>
+            <div class="card review-card">
+                <form method="POST" action="/submitreview">
+                    <div class="form-group">
+                        <label for="reviewText">Review Text:</label>
+                        <textarea name="reviewText" id="reviewText" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="rating">Rating:</label>
+                        <input type="number" name="rating" id="rating" min="1" max="5" required />
+                    </div>
+                    <input type="hidden" name="isbn" id="isbn" value="<%= book.isbn %>" readonly />
+                    <input type="hidden" name="name" id="bookName" value="<%= book.title %>" readonly />
+                    <button type="submit" class="btn">Submit Review</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

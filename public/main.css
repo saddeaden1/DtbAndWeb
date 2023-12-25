@@ -183,3 +183,33 @@ header {
         width: 95%;
     }
 }
+
+.review-flex-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px; 
+}
+
+.book-thumbnail {
+    flex-shrink: 0;
+}
+
+.book-thumbnail img {
+    max-width: 200px; 
+    height: auto;
+}
+
+.review-card {
+    flex-grow: 1;
+}
+
+
+@media (max-width: 768px) {
+    .review-flex-container {
+        flex-direction: column;
+    }
+
+    .book-thumbnail img {
+        max-width: 100%;
+    }
+}
