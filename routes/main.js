@@ -58,7 +58,7 @@ module.exports = function (app, forumData) {
             if (err) {
                 return res.status(500).send('Error saving session');
             }
-            const redirectTo = req.session.originalUrl || '/';
+            const redirectTo = req.session.originalUrl || './';
             console.log(redirectTo);
             delete req.session.originalUrl;
             console.log(redirectTo);
