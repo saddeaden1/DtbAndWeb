@@ -212,7 +212,7 @@ module.exports = function (app, forumData) {
     renderAddNewReview(res, {}, [], null);
   });
 
-  app.post('/searchBooks', async (req, res) => {
+  app.post('/searchBooks', redirectLogin, async (req, res) => {
       try {
           const query = req.body.bookSearch;
           const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}`;
