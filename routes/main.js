@@ -7,7 +7,7 @@ axios.defaults.proxy = false;
 const redirectLogin = (req, res, next) => {
   if (!req.session.user) { 
       req.session.originalUrl = req.originalUrl; 
-      res.redirect('./login');
+      res.redirect('/login');
   } else {
       next();
   }
@@ -30,7 +30,7 @@ module.exports = function (app, forumData) {
     res.render("about.ejs", forumData);
   });
 
-  app.get('/login', function (req, res) {
+  app.get('*/login', function (req, res) {
     res.render('login.ejs', forumData);
   });
 
@@ -96,9 +96,9 @@ module.exports = function (app, forumData) {
   app.get('/logout', function (req, res) {
     req.session.destroy(err => {
         if (err) {
-            return res.redirect('./');
+            return res.redirect('/');
         }
-        res.send('you are now logged out. <a href='+'./'+'>Home</a>');
+        res.send('you are now logged out. <a href='+'/'+'>Home</a>');
     });
   });
 
@@ -108,7 +108,7 @@ module.exports = function (app, forumData) {
 
     db.query(sqlquery, (err, result) => {
         if (err) {
-            res.redirect("./");
+            res.redirect("/");//todo: fix
         }
 
         let data = Object.assign({}, forumData, { books: result });
@@ -128,7 +128,7 @@ module.exports = function (app, forumData) {
 
         db.query(repliesQuery, [req.params.reviewId], (err, repliesResult) => {
             if (err) {
-                return res.redirect("./");
+                return res.redirect("./");//todo fix
             }
 
             let data = {
@@ -209,11 +209,11 @@ module.exports = function (app, forumData) {
             };
             res.render('addbookreview.ejs', { book: book, forumName: forumData.forumName });
         } else {
-            res.send("Book not found");
+            res.send('Book not found. <a href='+'/'+'>Home</a>');
         }
     } catch (error) {
         console.error('Error fetching book details:', error);
-        res.status(500).send('Error fetching book details');
+        res.status(500).send('Error fetching book details. <a href='+'/'+'>Home</a>');
     }
 });
   
