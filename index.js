@@ -4,6 +4,7 @@ const mysql = require('mysql');
 const fs = require('fs');
 const path = require('path');
 const bodyParser = require('body-parser');
+const expressSanitizer = require('express-sanitizer');
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -24,6 +25,8 @@ app.use((req, res, next) => {
     res.locals.user = req.session.user;
     next();
 });
+
+app.use(expressSanitizer());
 
 function runSetupScript() {
 

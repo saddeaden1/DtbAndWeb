@@ -56,6 +56,9 @@
             <button type="submit" class="btn">Post Reply</button>
         </form>
         </div>
+        <% if (errorMessage) { %>
+          <div class="error-message"><%= errorMessage %></div>
+        <% } %>
       </section>
     </div>
   </body>
