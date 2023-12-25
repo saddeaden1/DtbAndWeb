@@ -7,7 +7,7 @@ axios.defaults.proxy = false;
 const redirectLogin = (req, res, next) => {
   if (!req.session.user) { 
       req.session.originalUrl = req.originalUrl; 
-      res.redirect('/login');
+      res.redirect('./login');
   } else {
       next();
   }
@@ -58,8 +58,6 @@ module.exports = function (app, forumData) {
             if (err) {
                 return res.status(500).send('Error saving session');
             }
-
-
 
             const protocol = req.protocol;
             const host = req.headers.host; 
