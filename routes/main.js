@@ -31,7 +31,7 @@ module.exports = function (app, forumData) {
   });
 
   app.get('*/login', function (req, res) {
-    res.render('login.ejs', forumData);
+    renderLoginPage(res, {}, null);
   });
 
   app.post('/login', async (req, res) => {
@@ -39,24 +39,26 @@ module.exports = function (app, forumData) {
 
     db.query('CALL LoginUser(?)', [username], async (err, result) => {
         if (err) {
-            return res.status(500).send('An error occurred');
+            console.error(err);
+            return renderLoginPage(res, req.body, 'An error occurred');
         }
 
         const users = result[0];
         if (users.length === 0) {
-            return res.status(401).send('User not found');
+            return renderLoginPage(res, req.body, 'User not found');
         }
 
         const user = users[0];
         const isValidPassword = await bcrypt.compare(password, user.HashedPassword);
         if (!isValidPassword) {
-            return res.status(401).send('Invalid password');
+            return renderLoginPage(res, req.body, 'Invalid password');
         }
 
         req.session.user = { id: user.UserID, name: user.UserName };
         req.session.save(err => { 
             if (err) {
-                return res.status(500).send('Error saving session');
+                console.error(err);
+                return renderLoginPage(res, req.body, 'Error saving session');
             }
 
             const redirectPath = req.session.originalUrl ? "." + req.session.originalUrl : './';
@@ -65,40 +67,56 @@ module.exports = function (app, forumData) {
     });
   });
 
+  function renderLoginPage(res, initialValues, errorMessage) {
+    let data = {
+        initialValues: initialValues || {},
+        errorMessage: errorMessage || null,
+        forumName: forumData.forumName
+    };
+    res.render("login.ejs", data);
+  }
 
   app.get('/register', (req, res) => {
-    res.render('register.ejs', forumData);
+    renderRegisterPage(res, {}, null);
   });
 
-  app.post('/register', async (req, res) => {
-    try {
-        const { username, password, confirmPassword, firstName, surname, country } = req.body;
+  app.post('/register', (req, res) => {
+    const { username, password, confirmPassword, firstName, surname, country } = req.body;
 
-        if (password !== confirmPassword) {
-            return res.status(400).send('Passwords do not match');
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        db.query('CALL RegisterUser(?, ?, ?, ?, ?)', [username, firstName, surname, hashedPassword, country], (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).send('Error registering new user');
-            }
-            res.redirect('./login');
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server error');
+    if (password !== confirmPassword) {
+        return renderRegisterPage(res, req.body, 'Passwords do not match');
     }
+
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
+    db.query('CALL RegisterUser(?, ?, ?, ?, ?)', [username, firstName, surname, hashedPassword, country], (err, results) => {
+        if (err) {
+            let errorMessage = 'An error occurred during registration.';
+            if (err.code === 'ER_SIGNAL_EXCEPTION' && err.sqlMessage === 'User already exists') {
+                errorMessage = 'User already exists.';
+            }
+            console.error(err);
+            return renderRegisterPage(res, req.body, errorMessage);
+        }
+        res.redirect('./login');
+    });
   });
+
+  function renderRegisterPage(res, initialValues, errorMessage) {
+    let data = {
+        initialValues: initialValues || {},
+        errorMessage: errorMessage || null,
+        forumName: forumData.forumName
+    };
+    res.render("register.ejs", data); 
+  }
 
   app.get('/logout', function (req, res) {
     req.session.destroy(err => {
         if (err) {
-            return res.redirect('/');
+            return res.redirect('./');
         }
-        res.send('you are now logged out. <a href='+'/'+'>Home</a>');
+        res.send('you are now logged out. <a href='+'./'+'>Home</a>');
     });
   });
 
@@ -275,18 +293,5 @@ module.exports = function (app, forumData) {
         console.error(error);
         res.status(500).send('An error occurred while submitting the review.');
     }
-  });
-
-  app.post("/reviewadded", function (req, res) {
-    let { isbn, reviewText, rating } = req.body;
-    let userId = req.session.user ? req.session.user.id : 1; 
-
-    let sqlquery = `INSERT INTO reviews (UserID, ISBN, ReviewText, Rating) VALUES (?, ?, ?, ?)`;
-    db.query(sqlquery, [userId, isbn, reviewText, rating], (err, result) => {
-        if (err) {
-            return renderAddNewReview(res, req.body, err.message);
-        }
-        res.send("Review added successfully");
-    });
   });
 };

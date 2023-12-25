@@ -79,16 +79,25 @@ VALUES
 ('This is my favorite', 4, 3),
 ('This book was thought-provoking', 3, 4);
 
-CREATE PROCEDURE RegisterUser(IN p_UserName VARCHAR(50), IN p_FirstName VARCHAR(20), IN p_Surname VARCHAR(20), IN p_HashedPassword VARCHAR(255), IN p_Country VARCHAR(50))
+CREATE PROCEDURE RegisterUser(
+    IN p_UserName VARCHAR(50), 
+    IN p_FirstName VARCHAR(20), 
+    IN p_Surname VARCHAR(20), 
+    IN p_HashedPassword VARCHAR(255), 
+    IN p_Country VARCHAR(50)
+)
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
+    DECLARE v_UserExists INT;
 
-    START TRANSACTION;
-        INSERT INTO users (UserName, FirstName, Surname, HashedPassword, Country) VALUES (p_UserName, p_FirstName, p_Surname, p_HashedPassword, p_Country);
-    COMMIT;
+    -- Check if the user already exists
+    SELECT COUNT(*) INTO v_UserExists FROM users WHERE UserName = p_UserName;
+
+    IF v_UserExists = 0 THEN
+        INSERT INTO users (UserName, FirstName, Surname, HashedPassword, Country) 
+        VALUES (p_UserName, p_FirstName, p_Surname, p_HashedPassword, p_Country);
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'User already exists';
+    END IF;
 END;
 
 CREATE PROCEDURE LoginUser(IN p_UserName VARCHAR(50))

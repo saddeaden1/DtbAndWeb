@@ -37,6 +37,10 @@
                 <button type="submit" class="btn">Register</button>
             </form>
         </div>
+
+        <% if (errorMessage) { %>
+            <div class="error-message"><%= errorMessage %></div>
+        <% } %>
     </div>
 </body>
 </html>
