@@ -4,7 +4,6 @@ const https = require('https');
 
 axios.defaults.proxy = false;
 
-// Route handler for forum web app
 const redirectLogin = (req, res, next) => {
   if (!req.session.user) { 
       req.session.originalUrl = req.originalUrl; 
@@ -59,7 +58,9 @@ module.exports = function (app, forumData) {
             if (err) {
                 return res.status(500).send('Error saving session');
             }
-            res.redirect('/');
+            const redirectTo = req.session.originalUrl || '/';
+            delete req.session.originalUrl;
+            res.redirect(redirectTo);
         });
     });
   });
