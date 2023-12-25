@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>About - <%= forumName %></title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+    <%- include('./partials/header.ejs'); -%>
+    <div class="container">
+        <h1>About <%= forumName %></h1>
+        <div class="card">
+            <h2>Welcome to Our Book Review Forum</h2>
+            <p>
+                <%= forumName %> is a website where book lovers can come together to share their thoughts and opinions on their favorite books. Our forum allows book lovers to review books and see what others think about their favourite books.
+            </p>
+            <h3>Features:</h3>
+            <ul>
+                <li>Search for books using googles database.</li>
+                <li>Read reviews from fellow book lovers.</li>
+                <li>Write and share your own book reviews.</li>
+                <li>Give your own feedback to reveiws.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
