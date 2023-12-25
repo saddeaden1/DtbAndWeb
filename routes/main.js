@@ -60,7 +60,7 @@ module.exports = function (app, forumData) {
             }
 
             console.log(req.session.originalUrl);
-            res.redirect("./");
+            res.redirect("." + req.session.originalUrl);
         });
     });
   });
