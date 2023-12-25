@@ -85,7 +85,7 @@ module.exports = function (app, forumData) {
                 console.error(err);
                 return res.status(500).send('Error registering new user');
             }
-            res.redirect('/login');
+            res.redirect('./login');
         });
     } catch (err) {
         console.error(err);
