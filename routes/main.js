@@ -2,7 +2,6 @@ const bcrypt = require("bcrypt");
 const axios = require("axios");
 const https = require("https");
 const { check, validationResult } = require("express-validator");
-const { log } = require("console");
 
 axios.defaults.proxy = false;
 
