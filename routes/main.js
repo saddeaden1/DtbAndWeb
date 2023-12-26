@@ -470,4 +470,22 @@ module.exports = function (app, forumData) {
     };
     res.render("addbookreview.ejs", data);
   }
+
+  app.get('/reviews', (req, res) => {
+
+    const apiKey = req.headers['x-api-key'];
+    
+    if (!apiKey || apiKey !== 'apikey') {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const query = 'SELECT * FROM vw_book_reviews'; 
+
+    db.query(query, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+        res.json(results);
+    });
+  });
 };

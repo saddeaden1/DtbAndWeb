@@ -53,10 +53,10 @@ CREATE TABLE replies (
 );
 
 INSERT INTO users (UserName, FirstName, Surname, HashedPassword, Country) VALUES 
-('johndoe', 'John', 'Doe', 'hashedpassword1111111111111111111', 'USA'),
-('janedoe', 'Jane', 'Doe', 'hashedpassword222222222222222222', 'UK'),
-('joew', 'Joe', 'Wonderland', 'hashedpassword3333333333', 'Australia'),
-('fredb', 'Fred', 'Builder', 'hashedpassword44444444444', 'Canada'),
+('johndoe', 'John', 'Doe', '$2b$10$MFVDXsR3u32pnwW0z5fRG.h7r169nO2U1TKnSpsepsLeKMkssjjL6', 'USA'),
+('janedoe', 'Jane', 'Doe', '$2b$10$MFVDXsR3u32pnwW0z5fRG.h7r169nO2U1TKnSpsepsLeKMkssjjL6', 'UK'),
+('joew', 'Joe', 'Wonderland', '$2b$10$MFVDXsR3u32pnwW0z5fRG.h7r169nO2U1TKnSpsepsLeKMkssjjL6', 'Australia'),
+('fredb', 'Fred', 'Builder', '$2b$10$MFVDXsR3u32pnwW0z5fRG.h7r169nO2U1TKnSpsepsLeKMkssjjL6', 'Canada'),
 ('saddeaden', 'Sadde', 'Aden', '$2b$10$MFVDXsR3u32pnwW0z5fRG.h7r169nO2U1TKnSpsepsLeKMkssjjL6', 'United Kingdom');
 
 INSERT INTO books (ISBN, BookName, Author, Category, GoogleBooksID) VALUES 

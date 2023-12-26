@@ -33,3 +33,12 @@ Usage:
 Navigate to http://localhost:8000 in your chosen web browser.
 Register for a new account and login.
 Start exploring the features like adding reviews, viewing reviews, and searching for books.
+
+Test User Credentials: Username: saddeaden, Password: password
+
+API
+
+URL : (baseurl)/reveiws
+APIKEY: apikey
+
+To access the API the key must be added to the header of the get request with the name x-api-key
