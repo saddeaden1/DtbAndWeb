@@ -471,21 +471,46 @@ module.exports = function (app, forumData) {
     res.render("addbookreview.ejs", data);
   }
 
-  app.get('/reviews', (req, res) => {
+  app.get("/search", (req, res) => {
+    renderSearchPage(res, {}, null);
+  });
 
-    const apiKey = req.headers['x-api-key'];
-    
-    if (!apiKey || apiKey !== 'apikey') {
-        return res.status(401).json({ error: 'Unauthorized' });
+  app.post("/search", (req, res) => {
+    const searchTerm = req.body.searchTerm;
+    const searchQuery = "SELECT * FROM reviews WHERE ReviewText LIKE ?";
+
+    db.query(searchQuery, [`%${searchTerm}%`], (err, results) => {
+        if (err) {
+            console.error(err);
+            renderSearchPage(res, [], "An error occurred during the search");
+        } else {
+            renderSearchPage(res, results, null);
+        }
+    });
+  });
+
+  function renderSearchPage(res, searchResults, errorMessage) {
+    let data = {
+      searchResults: searchResults || [],
+      errorMessage: errorMessage,
+    };
+    res.render("search.ejs", data);
+  }
+
+  app.get("/reviews", (req, res) => {
+    const apiKey = req.headers["x-api-key"];
+
+    if (!apiKey || apiKey !== "apikey") {
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const query = 'SELECT * FROM vw_book_reviews'; 
+    const query = "SELECT * FROM vw_book_reviews";
 
     db.query(query, (err, results) => {
-        if (err) {
-            return res.status(500).json({ error: 'Internal server error' });
-        }
-        res.json(results);
+      if (err) {
+        return res.status(500).json({ error: "Internal server error" });
+      }
+      res.json(results);
     });
   });
 };

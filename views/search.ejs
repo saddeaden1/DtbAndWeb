@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Search</title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+  </head>
+  <body>
+    <%- include('./partials/header.ejs'); -%>
+    <div class="container">
+        <h1>Search Page</h1>
+
+    <form action="/search" method="post">
+        <div class="form-group">
+            <label for="searchTerm">Search for a keyword in a review:</label>
+            <input type="text" id="searchTerm" name="searchTerm" class="form-control search-input" placeholder="Search..." required />
+        </div>
+        <button type="submit" class="btn">Search</button>
+    </form>
+
+    <% if (errorMessage) { %>
+    <p><%= errorMessage %></p>
+    <% } %>
+
+    <% if (searchResults.length > 0) { %>
+        <div class="card">
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Review Title</th>
+                        <th>Rating</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% searchResults.forEach(function(review) { %>
+                        <tr>
+                            <td><%= review.PostTitle %></td>
+                            <td><%= review.Rating %>/5</td>
+                            <td><%= new Date(review.PostDate).toDateString() %></td>
+                            <td><a href="/review/<%= review.ReviewID %>">View Review</a></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <% } else if (searchResults.length === 0 && !errorMessage) { %>
+            <p>No results found for your search.</p>
+        <% } %>
+        </div>
+    </div>
+  </body>
+</html>
