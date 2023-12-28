@@ -471,12 +471,13 @@ module.exports = function (app, forumData) {
     res.render("addbookreview.ejs", data);
   }
 
-  app.get("/search", (req, res) => {
+  app.get("/search", redirectLogin,(req, res) => {
     renderSearchPage(res, {}, null);
   });
 
-  app.post("/search", (req, res) => {
-    const searchTerm = req.body.searchTerm;
+  app.post("/search",redirectLogin, (req, res) => {
+    const searchTerm = req.sanitize(req.body.searchTerm);
+
     const searchQuery = "SELECT * FROM reviews WHERE ReviewText LIKE ?";
 
     db.query(searchQuery, [`%${searchTerm}%`], (err, results) => {
