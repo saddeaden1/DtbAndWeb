@@ -475,9 +475,17 @@ module.exports = function (app, forumData) {
     renderSearchPage(res, {}, null);
   });
 
-  app.post("/search",redirectLogin, (req, res) => {
-    const searchTerm = req.sanitize(req.body.searchTerm);
+  app.post("/search",[
+    check("searchTerm", "A search term required").not().isEmpty()
+  ],
+  redirectLogin, (req, res) => {
 
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return renderSearchPage(res,{},errors.array().map((err) => err.msg).join(", "));
+    }
+
+    const searchTerm = req.sanitize(req.body.searchTerm);
     const searchQuery = "SELECT * FROM reviews WHERE ReviewText LIKE ?";
 
     db.query(searchQuery, [`%${searchTerm}%`], (err, results) => {
