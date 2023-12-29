@@ -1,10 +1,13 @@
+//import modules
 const bcrypt = require("bcrypt");
 const axios = require("axios");
 const https = require("https");
 const { check, validationResult } = require("express-validator");
 
+//an attempt to bypass my laptops proxy to make api calls to google without ssl handshake problems
 axios.defaults.proxy = false;
 
+//If the user is not logged in it will redict them to the login page and preserve the previous url
 const redirectLogin = (req, res, next) => {
   if (!req.session.user) {
     req.session.originalUrl = req.originalUrl;
@@ -31,10 +34,12 @@ module.exports = function (app, forumData) {
     res.render("about.ejs", forumData);
   });
 
+  //route for login, * meaning it will work on any page when a user is on a page which isnt the home page and is redirected to the login page
   app.get("*/login", function (req, res) {
     renderLoginPage(res, {}, null);
   });
 
+  //login form route
   app.post(
     "/login",
     [
@@ -59,6 +64,7 @@ module.exports = function (app, forumData) {
       const username = req.sanitize(req.body.username);
       const password = req.body.password;
 
+      //call login stored proc
       db.query("CALL LoginUser(?)", [username], async (err, result) => {
         if (err) {
           console.error(err);
@@ -70,6 +76,7 @@ module.exports = function (app, forumData) {
           return renderLoginPage(res, req.body, "User not found");
         }
 
+        //validate user password against stored hash
         const user = users[0];
         const isValidPassword = await bcrypt.compare(
           password,
@@ -79,6 +86,7 @@ module.exports = function (app, forumData) {
           return renderLoginPage(res, req.body, "Invalid password");
         }
 
+        //save user information in session 
         req.session.user = { id: user.UserID, name: user.UserName };
         req.session.save((err) => {
           if (err) {
@@ -125,6 +133,7 @@ module.exports = function (app, forumData) {
     (req, res) => {
       const errors = validationResult(req);
 
+      // If there are validation errors, render the error page
       if (!errors.isEmpty()) {
         return renderRegisterPage(
           res,
@@ -143,8 +152,10 @@ module.exports = function (app, forumData) {
       const country = req.sanitize(req.body.country);
       const password = req.body.password;
 
+      //hash password
       const hashedPassword = bcrypt.hashSync(password, 10);
 
+      //call registration stored procedure
       db.query(
         "CALL RegisterUser(?, ?, ?, ?, ?)",
         [username, firstName, surname, hashedPassword, country],
@@ -235,6 +246,7 @@ module.exports = function (app, forumData) {
           req,
           res,
           req.body.reviewId,
+          //combine errors into 1 errror message
           errors
             .array()
             .map((err) => err.msg)
@@ -245,6 +257,7 @@ module.exports = function (app, forumData) {
       // Sanitize inputs
       const replyContent = req.sanitize(req.body.content);
       const reviewId = req.sanitize(req.body.reviewId);
+      //retrive user information from session 
       const userId = req.session.user.id;
 
       let insertReplyQuery = `INSERT INTO replies (Reply, UserID, ReviewID) VALUES (?, ?, ?)`;
@@ -348,10 +361,15 @@ module.exports = function (app, forumData) {
     const url = `https://www.googleapis.com/books/v1/volumes/${bookId}`;
 
     try {
+       //disable certificate validaion handling to bypass proxy errors on my machine 
       const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+      //api call to google
       const response = await axios.get(url, { httpsAgent });
+
+      //retrive response data 
       const bookData = response.data;
 
+      //retrive relevent data from response
       if (bookData) {
         const book = {
           title: bookData.volumeInfo.title,
@@ -391,6 +409,8 @@ module.exports = function (app, forumData) {
     redirectLogin,
     async (req, res) => {
       const errors = validationResult(req);
+
+      // If there are validation errors, render the error page
       if (!errors.isEmpty()) {
         const book = {
           id: req.body.bookId,
@@ -415,7 +435,10 @@ module.exports = function (app, forumData) {
       const userId = req.session.user.id;
 
       try {
+        //disable certificate validaion handling to bypass proxy errors on my machine 
         const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+
+        //api call to google 
         const bookResponse = await axios.get(
           `https://www.googleapis.com/books/v1/volumes/${bookId}`,
           { httpsAgent }
@@ -480,17 +503,20 @@ module.exports = function (app, forumData) {
   ],
   redirectLogin, (req, res) => {
 
+    // If there are validation errors, render the error page
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return renderSearchPage(res,{},errors.array().map((err) => err.msg).join(", "));
     }
 
+    //sanatize search input 
     const searchTerm = req.sanitize(req.body.searchTerm);
     const searchQuery = "SELECT * FROM reviews WHERE ReviewText LIKE ?";
 
     db.query(searchQuery, [`%${searchTerm}%`], (err, results) => {
         if (err) {
             console.error(err);
+            // If there are errors, render the error page
             renderSearchPage(res, [], "An error occurred during the search");
         } else {
             renderSearchPage(res, results, null);
@@ -507,8 +533,10 @@ module.exports = function (app, forumData) {
   }
 
   app.get("/reviews", (req, res) => {
+    //retrives the header from the request
     const apiKey = req.headers["x-api-key"];
 
+    //returns an unauthorized response if the key is not included in the header or incorrect
     if (!apiKey || apiKey !== "apikey") {
       return res.status(401).json({ error: "Unauthorized" });
     }
@@ -519,6 +547,7 @@ module.exports = function (app, forumData) {
       if (err) {
         return res.status(500).json({ error: "Internal server error" });
       }
+      //return the data if all is successful
       res.json(results);
     });
   });
