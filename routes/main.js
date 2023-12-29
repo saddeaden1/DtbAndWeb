@@ -193,6 +193,7 @@ module.exports = function (app, forumData) {
   });
 
   // View Book Reviews
+  //calls the redirect to redirect to the login check to see if the user is logged in and prompts a login if they arent
   app.get("/viewreviews", redirectLogin, function (req, res) {
     let sqlquery = `SELECT BookID, BookName, GoogleBooksID FROM vw_books_with_reviews`;
 
@@ -445,8 +446,11 @@ module.exports = function (app, forumData) {
         );
         const bookData = bookResponse.data.volumeInfo;
 
+
         const title = req.sanitize(bookData.title);
         const authors = req.sanitize(bookData.authors.join(", "));
+
+        //retrive the isbn 13 format and if it is null retrive the isbn 10 and if both are null store a null value for this in the db
         const isbn13 = bookData.industryIdentifiers?.find(
           (id) => id.type === "ISBN_13"
         )?.identifier;

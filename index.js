@@ -7,9 +7,11 @@ const bodyParser = require("body-parser");
 const expressSanitizer = require("express-sanitizer");
 
 const app = express();
+//add body parder to app
 app.use(bodyParser.urlencoded({ extended: true }));
 const port = process.env.PORT || 8000;
 
+//add session middleware to app 
 var session = require("express-session");
 app.use(
   session({
@@ -23,6 +25,8 @@ app.use(
   })
 );
 
+
+// Middleware to make the user session present in the response for all routes
 app.use((req, res, next) => {
   res.locals.user = req.session.user;
   next();
@@ -30,7 +34,9 @@ app.use((req, res, next) => {
 
 app.use(expressSanitizer());
 
+//get the db setup file and run the file using the deployment user
 function runSetupScript(callback) {
+  //retrive the sql query in the db setup file
   const sqlquery = fs.readFileSync(path.join(__dirname, "create_db.sql"), {
     encoding: "utf-8",
   });
@@ -42,6 +48,7 @@ function runSetupScript(callback) {
     multipleStatements: true,
   });
 
+  //connect to db and run setup file
   connection.connect(function (err) {
     if (err) {
       console.error("Error connecting to MySQL:", err);
@@ -53,6 +60,7 @@ function runSetupScript(callback) {
 
       if (error) {
         console.error("Error executing SQL script:", error);
+        //raise error to the main setup database function if there is a failure
         return callback(error);
       } else {
         console.log("SQL script executed successfully.");
@@ -62,6 +70,7 @@ function runSetupScript(callback) {
   });
 }
 
+//wait for the setup file to run before connecting to the db so the app can startup
 function setupDatabase() {
   runSetupScript(function (err) {
     if (err) {
@@ -90,6 +99,7 @@ function setupDatabase() {
   });
 }
 
+//setup database
 setupDatabase();
 
 // Set the directory where static files (css, js, etc) will be
