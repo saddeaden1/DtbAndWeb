@@ -515,9 +515,15 @@ module.exports = function (app, forumData) {
 
     //sanatize search input 
     const searchTerm = req.sanitize(req.body.searchTerm);
-    const searchQuery = "SELECT * FROM reviews WHERE ReviewText LIKE ?";
 
-    db.query(searchQuery, [`%${searchTerm}%`], (err, results) => {
+    //search by book name or reveiw and join the tables
+    const searchQuery = `
+          SELECT reviews.*, books.BookName 
+          FROM reviews 
+          INNER JOIN books ON reviews.BookID = books.BookID 
+          WHERE reviews.ReviewText LIKE ? OR books.BookName LIKE ?`;
+
+    db.query(searchQuery, [`%${searchTerm}%`, `%${searchTerm}%`], (err, results) => {
         if (err) {
             console.error(err);
             // If there are errors, render the error page

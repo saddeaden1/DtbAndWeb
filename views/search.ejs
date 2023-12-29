@@ -11,7 +11,7 @@
 
     <form action="/search" method="post">
         <div class="form-group">
-            <label for="searchTerm">Search for a keyword in a review:</label>
+            <label for="searchTerm">Search for a keyword in a review or a book name:</label>
             <input type="text" id="searchTerm" name="searchTerm" class="form-control search-input" placeholder="Search..." required />
         </div>
         <button type="submit" class="btn">Search</button>
@@ -26,6 +26,7 @@
             <table class="styled-table">
                 <thead>
                     <tr>
+                        <th>Book name</th>
                         <th>Review Title</th>
                         <th>Rating</th>
                         <th>Date</th>
@@ -35,6 +36,7 @@
                 <tbody>
                     <% searchResults.forEach(function(review) { %>
                         <tr>
+                            <td><%= review.BookName %></td>
                             <td><%= review.PostTitle %></td>
                             <td><%= review.Rating %>/5</td>
                             <td><%= new Date(review.PostDate).toDateString() %></td>
